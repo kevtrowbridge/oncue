@@ -1,105 +1,119 @@
 # Claude Handoff — Current
 
 **Last updated:** June 21, 2026
-**Current phase:** OnCue MVP UX Architecture
+**Current phase:** OnCue MVP UX Architecture — complete; ready for founder review
 
 ---
 
 ## Objective
 
-Repository foundation and GitHub connection are complete. The next phase is defining the MVP UX architecture before beginning Lovable implementation.
+Review and confirm the MVP UX Architecture before any Lovable implementation begins. The architecture document is founder-facing and requires explicit sign-off on the eight numbered assumptions before the next phase starts.
 
 ---
 
-## Work Completed
+## Work Completed This Session
 
-**Repository foundation — complete:**
-- All foundational documentation created: `CLAUDE.md`, `README.md`, `.gitignore`, `docs/FOUNDER_DECISIONS.md`, full handoff structure
-- BeHive workflow audit completed; suitable practices incorporated into `CLAUDE.md`
-- Git identity configured: Kevin Trowbridge / kevin@bcenergyalliance.org
+**MVP UX Architecture document created:**
+- `docs/architecture/mvp-ux-architecture.md`
+- Covers all seven requested sections: user journeys, product modes, page map, key screens, Timeline Intelligence, role-filtered views, MVP vs. Later
+- Grounded entirely in the three authoritative Master Docs (Strategy, Architecture, MVP Spec)
+- Eight assumptions identified and listed for founder confirmation
 
-**GitHub connection — verified complete:**
-- `ktrowbridge` authenticated via GitHub CLI (browser flow); `kevtrowbridge` preserved as inactive second account
-- Git credential helper configured to use GitHub CLI (`gh auth setup-git`)
-- Remote `origin` added: `https://github.com/ktrowbridge/oncue.git`
-- Push succeeded; `main` tracks `origin/main`
-- Local and remote synchronized at commit `d______` *(final hash recorded below after commit)*
+**Repository verification before work:**
+- Working tree was clean; `main` tracked `origin/main` at `8fe8cfd`
+- All three Master Docs read in full before writing
 
-**CLAUDE.md updates this session:**
-- Handoff Protocol item 13 added: never record a push, deployment, migration, or future action as completed before the command succeeds and result is verified
-
-**Commits on GitHub (`https://github.com/ktrowbridge/oncue`):**
-
-| Hash | Message |
-| --- | --- |
-| `38d6b7a` | Initialize OnCue project foundation |
-| `70ae681` | Add OnCue workflow audit history |
-| `c07952c` | Update handoff before GitHub connection |
-| `fcba73b` | Record verified GitHub connection |
+**GitHub connection status (prior session — confirmed):**
+- Remote: `https://github.com/ktrowbridge/oncue.git`
+- `ktrowbridge` active; `kevtrowbridge` preserved
+- `main` tracks `origin/main`
 
 ---
 
-## Files / Systems Changed
+## Files Created or Modified
 
-| File | Status |
+| File | Action |
 | --- | --- |
-| `CLAUDE.md` | Updated — Handoff Protocol item 13 added |
+| `docs/architecture/mvp-ux-architecture.md` | Created — MVP UX Architecture document |
 | `docs/claude-handoff/current.md` | Updated (this file) |
-| `docs/claude-handoff/archive/2026-06-21-0900-pre-push-auth-pending.md` | Created (archived auth-pending handoff) |
-| `docs/claude-handoff/archive/2026-06-20-2300-pre-push-stale.md` | Added to Git (was untracked from previous session) |
+| `docs/claude-handoff/archive/2026-06-21-1000-pre-ux-architecture.md` | Created (archived prior handoff before this milestone) |
 
-No application code, Supabase, or deployment has been configured.
-
----
-
-## Authoritative Documents
-
-**Master Docs folder:**
-`/Users/kevintrowbridge/Library/CloudStorage/GoogleDrive-kevin@bcenergyalliance.org/My Drive/Honeycomb_software/OnCue Timeline Intelligence`
-
-Current `.gdoc` files in `_Master DOCS` remain JSON pointer files — not readable as plain text. Must be opened in a browser.
-
-Readable archived copies exist in the `Archive` subfolder (`.md` and `.docx` formats).
-
-No Google Drive files were modified.
+No application code, Supabase, or deployment has been configured. No Lovable work has begun.
 
 ---
 
-## Git Status
+## Commits in This Session
 
-- Branch: `main` tracking `origin/main`
-- Remote: `origin` → `https://github.com/ktrowbridge/oncue.git`
-- Local and remote synchronized
-- Working tree: clean (after this commit)
-- GitHub CLI: `ktrowbridge` active, `kevtrowbridge` preserved
+| Hash | Message | Status |
+| --- | --- |--- |
+| *(pending)* | Add OnCue MVP UX Architecture | local only — not yet pushed |
+
+---
+
+## Verification
+
+- Architecture document read back in full after writing — all seven sections present
+- All content traceable to Master Docs (no invented strategy)
+- Eight assumptions clearly labeled `[ASSUMPTION]` for founder review
+- No implementation code written
 
 ---
 
 ## Visible and Testable
 
-No application interface exists. The repository is visible on GitHub at:
+The architecture document is readable in VS Code at `docs/architecture/mvp-ux-architecture.md`.
 
-`https://github.com/ktrowbridge/oncue`
-
-The founder can inspect all committed files, the full commit history, and the branch structure there.
+No application interface exists. No Lovable project has been started.
 
 ## Review Status
-Visible to founder: Yes — on GitHub at https://github.com/ktrowbridge/oncue
-Where to look: Verify files, commits, branch, and that no unexpected files are present
-Founder review recommended: Yes
-Next step: Review the repository on GitHub, then begin OnCue MVP UX Architecture
+Visible to founder: Yes — `docs/architecture/mvp-ux-architecture.md` in VS Code
+Where to look: Open the file and review all seven sections; pay particular attention to Section 8 (Assumptions Requiring Founder Confirmation)
+Founder review recommended: Yes — before any implementation begins
+Next step: Founder reviews `docs/architecture/mvp-ux-architecture.md`, confirms or revises assumptions, then gives approval to begin Lovable implementation
 
 ---
 
 ## Risks / Unresolved Issues
 
-- The current authoritative `.gdoc` files in `_Master DOCS` are not readable as plain text by local tools.
-- No application framework, Supabase project, or deployment target has been selected or configured.
+- The authoritative `.gdoc` files in `_Master DOCS` (Google Drive) remain unreadable as plain text. This document was built from the three readable archive copies. If the current `.gdoc` versions contain updates not reflected in the archive copies, those updates are not captured here.
+- Eight assumptions in Section 8 of the architecture document require founder confirmation before implementation begins. Until confirmed, they are architecture-only decisions that could change the scope and complexity of the implementation.
 
 ---
 
 ## Exact Next Step
 
-**Phase: OnCue MVP UX Architecture**
+**Founder action:** Open `docs/architecture/mvp-ux-architecture.md` in VS Code and review all sections. Focus especially on:
 
-Define the MVP user journeys, product modes, page map, navigation, screen-content hierarchy, Timeline Intelligence interactions, role-filtered views, and the distinction between planning mode and execution mode before beginning polished Lovable implementation.
+1. Section 1 — Role mapping (does Owner/Planner/Vendor/Client match your intent?)
+2. Section 2 — Mode transition rules (does the Planning → Execution → Archived flow match your vision?)
+3. Section 5 — Timeline Intelligence (is the rule-based vs. AI-assisted split correct?)
+4. Section 7 — MVP vs. Later (are any deferred features actually required for initial validation?)
+5. Section 8 — Assumptions (confirm or revise each of the eight numbered assumptions)
+
+After review, return with corrections or confirmation. Then proceed to Lovable implementation.
+
+---
+
+## Successor Prompt (for Claude Code, after founder review)
+
+```
+Begin OnCue MVP implementation in Lovable.
+
+The MVP UX Architecture is approved and located at:
+docs/architecture/mvp-ux-architecture.md
+
+Assumptions confirmed:
+[List each confirmed assumption from Section 8 here before running this prompt]
+
+Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
+
+Do not deploy. Do not push to GitHub without explicit approval.
+Do not begin Supabase setup until the UX scaffolding is reviewed.
+
+Start with:
+1. Scaffold the Lovable project
+2. Implement the Dashboard and Create Event screens
+3. Implement the Timeline Editor shell (no intelligence yet — structure first)
+4. Implement Wedding Day Mode shell (compact card layout)
+5. Report what is visible and testable before proceeding further
+```
