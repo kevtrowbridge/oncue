@@ -234,6 +234,7 @@ Next step: <exact action>
 10. Update the live handoff after every meaningful completed unit of work.
 11. Include commands, verification evidence, and exact file paths where useful.
 12. Preserve historical facts — do not rewrite prior archive entries to reflect later decisions.
+13. Never record a push, deployment, migration, or other future action as completed before the command succeeds and the result is verified. Planned work must be labelled pending or in progress.
 
 ---
 
