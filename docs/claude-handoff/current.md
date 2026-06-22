@@ -88,7 +88,7 @@ No application code. No Supabase project. No Lovable project.
 
 | Hash | Message | Location |
 |---|---|---|
-| *(pending — this commit)* | Write TypeScript data interfaces for Phase 1 Lovable scaffold | pending |
+| `73e42bc` | Write TypeScript data interfaces for Phase 1 Lovable scaffold | KevTrowbridge/oncue |
 | `f99bd21` | Add 10-phase OnCue implementation plan to live handoff | KevTrowbridge/oncue |
 | `3e81cc0` | Confirm repo migration commit hash in live handoff | KevTrowbridge/oncue |
 
