@@ -1,119 +1,129 @@
 # Claude Handoff — Current
 
 **Last updated:** June 21, 2026
-**Current phase:** OnCue MVP UX Architecture — complete; ready for founder review
+**Current phase:** MVP UX Architecture v2.0 — revised with 11 founder decisions; awaiting founder review before Lovable
 
 ---
 
 ## Objective
 
-Review and confirm the MVP UX Architecture before any Lovable implementation begins. The architecture document is founder-facing and requires explicit sign-off on the eight numbered assumptions before the next phase starts.
+Founder reviews the revised MVP UX Architecture document, answers four open questions (Section 9 items A–D), and gives approval to begin Lovable implementation. No implementation has started.
 
 ---
 
-## Work Completed This Session
+## What Was Completed This Session
 
-**MVP UX Architecture document created:**
-- `docs/architecture/mvp-ux-architecture.md`
-- Covers all seven requested sections: user journeys, product modes, page map, key screens, Timeline Intelligence, role-filtered views, MVP vs. Later
-- Grounded entirely in the three authoritative Master Docs (Strategy, Architecture, MVP Spec)
-- Eight assumptions identified and listed for founder confirmation
+**Architecture document revised (v2.0):**
 
-**Repository verification before work:**
-- Working tree was clean; `main` tracked `origin/main` at `8fe8cfd`
-- All three Master Docs read in full before writing
+File: `docs/architecture/mvp-ux-architecture.md`
 
-**GitHub connection status (prior session — confirmed):**
-- Remote: `https://github.com/ktrowbridge/oncue.git`
-- `ktrowbridge` active; `kevtrowbridge` preserved
-- `main` tracks `origin/main`
+Eleven founder decisions incorporated:
+
+1. One shared questionnaire (not separate photographer/bride versions); non-owner edits are proposed changes requiring approval
+2. Group photo participants expanded to all relationships (extended family, chosen family, VIPs — not just parents/siblings)
+3. Couple sign-in is lightweight (magic link + Google); not a professional account setup
+4. Vendor access is link-based (no account); vendor link landing includes a low-friction marketing prompt
+5. Wedding Day Mode is delay-first; "Running Late" is the primary feature; mark complete is secondary and not relied upon
+6. Planner has two levels: Collaborator (edits; sensitive changes may need approval) and Co-owner (can approve changes)
+7. Couple can download their own PDF copy of the timeline
+8. QR codes are V2 unless trivially easy
+9. Questionnaire pre-fill from past events is deferred; section-level guidance is a later feature
+10. Custom branding and custom domain are paid V2 features
+11. Location sharing is a documented planned feature for V2; defined in its own section (Section 7) with full opt-in, privacy, and notification rules
+
+**Document also includes:**
+- Clear MVP / V2 / Later separation (three distinct tiers, not just two)
+- Document status section confirming this is repo-only and not yet in Google Drive
+- Google Drive cross-reference recommendation
+- Revision history table
+- Confirmed vs. open items in Section 9 founder review
 
 ---
 
 ## Files Created or Modified
 
 | File | Action |
-| --- | --- |
-| `docs/architecture/mvp-ux-architecture.md` | Created — MVP UX Architecture document |
+|---|---|
+| `docs/architecture/mvp-ux-architecture.md` | Revised — v2.0 |
+| `docs/claude-handoff/archive/2026-06-21-1100-pre-architecture-v2.md` | Created (prior handoff archived) |
 | `docs/claude-handoff/current.md` | Updated (this file) |
-| `docs/claude-handoff/archive/2026-06-21-1000-pre-ux-architecture.md` | Created (archived prior handoff before this milestone) |
 
-No application code, Supabase, or deployment has been configured. No Lovable work has begun.
+No application code. No Lovable project. No Supabase. No deployment.
 
 ---
 
-## Commits in This Session
+## Git Status
 
 | Hash | Message | Status |
-| --- | --- |--- |
-| `a283337` | Add OnCue MVP UX Architecture | pushed to `origin/main` |
-
----
-
-## Verification
-
-- Architecture document read back in full after writing — all seven sections present
-- All content traceable to Master Docs (no invented strategy)
-- Eight assumptions clearly labeled `[ASSUMPTION]` for founder review
-- No implementation code written
+|---|---|---|
+| `2c40d52` | Confirm UX architecture commit hash in live handoff | On GitHub |
+| *(pending)* | Revise MVP UX Architecture with founder decisions | Local only — not yet committed |
 
 ---
 
 ## Visible and Testable
 
-The architecture document is readable in VS Code at `docs/architecture/mvp-ux-architecture.md`.
+The architecture document is readable in VS Code at:
+`docs/architecture/mvp-ux-architecture.md`
 
 No application interface exists. No Lovable project has been started.
 
 ## Review Status
 Visible to founder: Yes — `docs/architecture/mvp-ux-architecture.md` in VS Code
-Where to look: Open the file and review all seven sections; pay particular attention to Section 8 (Assumptions Requiring Founder Confirmation)
-Founder review recommended: Yes — before any implementation begins
-Next step: Founder reviews `docs/architecture/mvp-ux-architecture.md`, confirms or revises assumptions, then gives approval to begin Lovable implementation
+Where to look: Read the full document; focus on Section 9 (items A–D still need answers)
+Founder review recommended: Yes — required before any Lovable work begins
+Next step: Founder reviews revised architecture, answers items A–D in Section 9, then approves to proceed
 
 ---
 
-## Risks / Unresolved Issues
+## Open Items (must be resolved before Lovable)
 
-- The authoritative `.gdoc` files in `_Master DOCS` (Google Drive) remain unreadable as plain text. This document was built from the three readable archive copies. If the current `.gdoc` versions contain updates not reflected in the archive copies, those updates are not captured here.
-- Eight assumptions in Section 8 of the architecture document require founder confirmation before implementation begins. Until confirmed, they are architecture-only decisions that could change the scope and complexity of the implementation.
+From Section 9 of the architecture document:
+
+**A — Collaborator approval rules:** Which specific actions by a Collaborator-level planner require owner approval? Suggested default: all edits apply directly; only delete-event requires approval. Couple changes always require approval. Confirm or define exceptions.
+
+**B — Event readiness definition:** What constitutes a "ready" event? Suggested: questionnaire complete, group photos sequenced, one PDF downloaded, no critical constraint warnings. Confirm or modify.
+
+**C — Rollback scope:** Does "roll back one version" mean the full timeline, or individual activities?
+
+**D — Google Drive:** Should the confirmed architecture content be copied into the Master Google Docs before implementation begins? (Recommended: yes.)
+
+---
+
+## Risks
+
+- The architecture document was written from the three readable archive copies of the Master Docs. If the current Google Docs contain updates not in those archives, those updates are not reflected here.
+- Items A–D remain open. If any of these change the scope significantly (especially C — rollback scope), implementation timelines for those features could shift.
 
 ---
 
 ## Exact Next Step
 
-**Founder action:** Open `docs/architecture/mvp-ux-architecture.md` in VS Code and review all sections. Focus especially on:
+**Founder action:** Open `docs/architecture/mvp-ux-architecture.md` in VS Code. Read the full document. Pay close attention to:
 
-1. Section 1 — Role mapping (does Owner/Planner/Vendor/Client match your intent?)
-2. Section 2 — Mode transition rules (does the Planning → Execution → Archived flow match your vision?)
-3. Section 5 — Timeline Intelligence (is the rule-based vs. AI-assisted split correct?)
-4. Section 7 — MVP vs. Later (are any deferred features actually required for initial validation?)
-5. Section 8 — Assumptions (confirm or revise each of the eight numbered assumptions)
+- Section 1 — User journeys (especially the couple's proposed-change model)
+- Section 2 — Wedding Day Mode delay-adjustment flow
+- Section 7 — Location sharing (V2 planned feature)
+- Section 8 — MVP / V2 / Later feature tiers
+- Section 9 — Answer items A, B, C, and D
 
-After review, return with corrections or confirmation. Then proceed to Lovable implementation.
+Return with corrections or confirmation. After founder approval, proceed to commit and push the architecture file, then begin Lovable scaffolding.
 
 ---
 
-## Successor Prompt (for Claude Code, after founder review)
+## Successor Prompt (after founder review and approval)
 
 ```
-Begin OnCue MVP implementation in Lovable.
-
-The MVP UX Architecture is approved and located at:
+The MVP UX Architecture is approved. Apply any corrections from founder review to:
 docs/architecture/mvp-ux-architecture.md
 
-Assumptions confirmed:
-[List each confirmed assumption from Section 8 here before running this prompt]
+Then:
+1. Commit and push the revised architecture document with message:
+   Revise MVP UX Architecture with founder decisions
+2. Verify the push succeeded
+3. Update the live handoff with the confirmed commit hash and push state
+4. Then provide the exact Lovable scaffolding prompt as the next step
 
 Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
-
-Do not deploy. Do not push to GitHub without explicit approval.
-Do not begin Supabase setup until the UX scaffolding is reviewed.
-
-Start with:
-1. Scaffold the Lovable project
-2. Implement the Dashboard and Create Event screens
-3. Implement the Timeline Editor shell (no intelligence yet — structure first)
-4. Implement Wedding Day Mode shell (compact card layout)
-5. Report what is visible and testable before proceeding further
+Do not begin Lovable until architecture is committed and founder has approved.
 ```
