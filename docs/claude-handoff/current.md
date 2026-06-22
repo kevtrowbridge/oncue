@@ -73,7 +73,7 @@ No architecture changes. No application code. No Lovable project. No Supabase.
 
 | Hash | Message | Location |
 |---|---|---|
-| *(pending — this handoff commit)* | Record OnCue repo migration to KevTrowbridge/oncue | pending |
+| `aeb5c2e` | Record OnCue repo migration to KevTrowbridge/oncue | KevTrowbridge/oncue |
 | `1c8db3a` | Record v3.0 commit hash in live handoff | KevTrowbridge/oncue |
 | `63cb88a` | Apply v3.0 red-team additions to MVP UX Architecture | KevTrowbridge/oncue |
 
