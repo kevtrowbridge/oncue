@@ -1,57 +1,81 @@
 # Claude Handoff — Current
 
 **Last updated:** June 21, 2026
-**Current phase:** MVP UX Architecture v3.0 — all founder decisions confirmed; awaiting Google Drive merge before Lovable
+**Current phase:** MVP UX Architecture v3.0 complete — GitHub repo migrated to KevTrowbridge/oncue — awaiting Google Drive merge before Lovable
+
+---
+
+## Canonical GitHub Repository
+
+**Correct repo:** `https://github.com/KevTrowbridge/oncue`
+**Old/accidental repo:** `https://github.com/ktrowbridge/oncue` — not deleted, not transferred; left in place
+
+The local remote has been updated. All future pushes go to `KevTrowbridge/oncue`.
 
 ---
 
 ## Objective
 
-Founder merges the confirmed architecture into the Master Google Docs, then approves to begin Lovable scaffolding. No implementation has started.
+Founder confirms Lovable can see `KevTrowbridge/oncue`, then merges the confirmed architecture into the Master Google Docs, then approves to begin Lovable scaffolding. No implementation has started.
 
 ---
 
-## What Was Completed This Session
+## What Was Completed (Repo Migration Session)
 
-**Architecture document revised (v3.0):**
+**OnCue GitHub repository migrated to correct account:**
 
-File: `docs/architecture/mvp-ux-architecture.md`
-
-Ten red-team additions incorporated from ChatGPT review and founder approval:
-
-1. **Review Required workflow** — Collaborator edits apply immediately (owner notified, can revert). Not a formal approval queue. Couple changes still require explicit approval.
-2. **Event Readiness Checklist** — 7-item checklist replaces binary ready/not-ready state. Items: questionnaire complete, groups sequenced, PDF downloaded, no critical warnings, couple proposals resolved, at least one vendor link shared, emergency contacts entered.
-3. **Comprehensive MVP rollback** — undo/redo (in-session) + automatic snapshots (at key milestones) + full timeline restore (with confirmation) + change log (every change, every user) + version comparison summary (before/after diff between any two snapshots).
-4. **Google Drive merge confirmed** — Architecture must be merged into Master Google Docs before Lovable implementation begins. (Section 9, item D.)
-5. **What's Changed Since Last Visit** — Shown to owner, planner, and couple when returning after changes. Plain-language summary. Required MVP feature.
-6. **Vendor status tracking** — Invited / Viewed / Confirmed. Status visible on Vendor Role Management and Dashboard. Confirmed via one-tap on vendor link landing.
-7. **Emergency contact layer** — Questionnaire section 8. One-tap access in Wedding Day Mode. Data loads offline. Required for Event Readiness Checklist item 7.
-8. **Mobile-first one-handed design rule** — Hard requirement. Every day-of action completable with one thumb. Minimum 44×44pt targets. Critical actions in two taps maximum. Added as Design Principles section.
-9. **PDF backup required** — Not optional. Persistent warning if not downloaded before event date. Event Readiness Checklist item 3.
-10. **Smart defaults** — Every field has a sensible default. A photographer who enters only event date and couple names must get a usable baseline timeline. Full defaults table added to Section 5.
-
-**All Section 9 items are now confirmed. No open questions remain before Lovable implementation.**
+| Step | Result |
+|---|---|
+| Active GitHub identity verified | `kevtrowbridge` ✓ |
+| Target repo verified to exist | `KevTrowbridge/oncue` ✓ |
+| Local origin updated | `ktrowbridge/oncue` → `KevTrowbridge/oncue` ✓ |
+| `main` pushed to new repo | ✓ |
+| Remote HEAD | `1c8db3a` |
+| Local HEAD | `1c8db3a` |
+| Hashes match | ✓ |
+| Working tree after push | Clean ✓ |
+| Old repo modified | No — left untouched ✓ |
 
 ---
 
-## Files Created or Modified
+## Prior Work Summary (Architecture Session)
+
+**Architecture document v3.0:** `docs/architecture/mvp-ux-architecture.md`
+
+Ten red-team additions confirmed by founder:
+1. Review Required workflow (not formal approval queue)
+2. Event Readiness Checklist (7 items)
+3. Comprehensive MVP rollback (undo/redo + snapshots + restore + change log + version comparison)
+4. Google Drive merge confirmed as prerequisite
+5. What's Changed Since Last Visit
+6. Vendor status tracking (Invited / Viewed / Confirmed)
+7. Emergency contact layer
+8. Mobile-first one-handed design rule
+9. PDF backup required
+10. Smart defaults required for every field
+
+**All Section 9 items confirmed. No open architecture questions remain.**
+
+---
+
+## Files Created or Modified (This Session)
 
 | File | Action |
 |---|---|
-| `docs/architecture/mvp-ux-architecture.md` | Revised — v3.0 |
-| `docs/claude-handoff/archive/2026-06-21-1400-pre-v3-architecture.md` | Created (prior handoff archived) |
+| `docs/claude-handoff/archive/2026-06-21-1500-pre-repo-migration.md` | Created (prior handoff archived) |
 | `docs/claude-handoff/current.md` | Updated (this file) |
 
-No application code. No Lovable project. No Supabase. No deployment.
+No architecture changes. No application code. No Lovable project. No Supabase.
 
 ---
 
 ## Git Status
 
-| Hash | Message | Status |
+| Hash | Message | Location |
 |---|---|---|
-| `63cb88a` | Apply v3.0 red-team additions to MVP UX Architecture | On GitHub |
-| `e62c204` | Revise MVP UX Architecture with founder decisions | On GitHub |
+| *(pending — this handoff commit)* | Record OnCue repo migration to KevTrowbridge/oncue | pending |
+| `1c8db3a` | Record v3.0 commit hash in live handoff | KevTrowbridge/oncue |
+| `63cb88a` | Apply v3.0 red-team additions to MVP UX Architecture | KevTrowbridge/oncue |
 
 ---
 
@@ -63,43 +87,46 @@ The architecture document is readable in VS Code at:
 No application interface exists. No Lovable project has been started.
 
 ## Review Status
-Visible to founder: Yes — `docs/architecture/mvp-ux-architecture.md` in VS Code
-Where to look: Full document; especially Design Principles (new), Section 2 Event Readiness Checklist, Section 5 Smart Defaults and Version History, Section 9 (all items confirmed)
-Founder review recommended: Recommended but not required — all decisions are confirmed
-Next step: Founder merges architecture into Master Google Docs, then approves to begin Lovable
+Visible to founder: Yes — `docs/architecture/mvp-ux-architecture.md` in VS Code; `KevTrowbridge/oncue` on GitHub
+Founder review recommended: No — repo migration is complete; no new architecture content
+Next step: Founder verifies Lovable can see KevTrowbridge/oncue, then merges architecture into Master Google Docs
 
 ---
 
 ## Required Before Lovable Begins
 
-**One action required from the founder:**
+**Two actions required from the founder (in order):**
 
-Merge the confirmed content of `docs/architecture/mvp-ux-architecture.md` into the Master Google Docs:
+**1. Verify Lovable can see KevTrowbridge/oncue**
+Log into Lovable → New Project → GitHub → confirm `KevTrowbridge/oncue` appears in the repo list. Do not start the project yet — just confirm it is visible.
+
+**2. Merge architecture into Master Google Docs**
+Open both Master Google Docs in Google Drive. Copy the confirmed decisions and architecture content from `docs/architecture/mvp-ux-architecture.md` into:
 - `OnCue Master Document V2.gdoc`
 - `OnCue Founder Decisions Log.gdoc`
 
-This is a founder-only action (Google Drive documents are not editable by Claude). Once confirmed, Lovable scaffolding can begin.
+These are founder-only actions. Once both are confirmed, Claude will provide the exact Lovable scaffolding prompt.
 
 ---
 
 ## Exact Next Step
 
-**Founder action:** Open both Master Google Docs in Google Drive. Copy the confirmed decisions and architecture content from `docs/architecture/mvp-ux-architecture.md` into the appropriate sections. Confirm when done.
+**Founder action:** Complete the two steps above, then return with:
 
-**Then return with:**
-> "Master Google Docs updated. Proceed with Lovable scaffolding."
+> "Lovable can see KevTrowbridge/oncue. Master Google Docs updated. Proceed with Lovable scaffolding prompt."
 
 ---
 
-## Successor Prompt (after Google Drive merge is confirmed)
+## Successor Prompt (after both prerequisites are confirmed)
 
 ```
-The Master Google Docs have been updated with the v3.0 architecture content.
+Lovable can see KevTrowbridge/oncue.
+Master Google Docs have been updated with the v3.0 architecture content.
 All founder decisions are confirmed. No open questions remain.
 
 Provide the exact Lovable scaffolding prompt as the next step.
-Do not begin building — provide the prompt only, so the founder can review
-before initiating the Lovable session.
+Do not begin building — provide the prompt only, so the founder
+can review before initiating the Lovable session.
 
 Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
 ```
