@@ -1,68 +1,219 @@
 # Claude Handoff — Current
 
 **Last updated:** June 22, 2026
-**Current phase:** Pre-Phase 1 complete — design direction confirmed — Lovable prompt ready
+**Current phase:** Repository audit complete — interface reconciliation is the gating next step before any code migration
 
 ---
 
-## Canonical Repository
+## 1. Thirty-Second Summary
 
-**Correct repo:** `https://github.com/KevTrowbridge/oncue`
-**Old/accidental repo:** `https://github.com/ktrowbridge/oncue` — left in place, not deleted
+Two OnCue repositories exist. `KevTrowbridge/oncue` is the canonical repo — it has the full architecture, strategy docs, and TypeScript interfaces, but zero application code. `kevtrowbridge/event-flow-master` is the Lovable-generated prototype — it has all 8 screens built and working, a production-quality design system, and a complete demo intelligence engine, but no backend, no Supabase, and no production data models.
+
+The two repos are complementary, not competing. The path forward is to merge `event-flow-master` into `oncue` — but seven data model conflicts must be resolved in `data-interfaces.ts` first. No merge has started. No code has been touched. The audit is the completed work.
 
 ---
 
-## Pre-Phase 1 Status
+## 2. What Changed
 
-| Item | Status |
+### This session: repository audit completed
+
+Both repositories were fully inspected via `gh api` and local file reads. A 9-section founder review report was produced. Nothing was modified in either repository.
+
+### Prior sessions: documentation and architecture
+
+| Date | Work completed |
 |---|---|
-| Architecture v3.0 | Confirmed — all Section 9 decisions approved |
-| GitHub repo | `KevTrowbridge/oncue` ✓ |
-| Lovable account | Connected to `KevTrowbridge` ✓ |
-| Google Drive merge | Complete ✓ |
-| TypeScript interfaces | Complete ✓ — `docs/architecture/data-interfaces.ts` |
-| Visual design direction | **Confirmed ✓ — documented below** |
-| Lovable prompt | **Ready — includes screens + design + data shapes** |
-| Application code | None |
+| June 22, 2026 | Visual design direction confirmed and embedded in Phase 1 Lovable prompt |
+| June 22, 2026 | Founder decisions log consolidated — 24 sections, 287 lines added |
+| June 22, 2026 | TypeScript data interfaces written — `docs/architecture/data-interfaces.ts`, 44 exports |
+| June 21, 2026 | Architecture v3.0 finalized — all Section 9 decisions approved |
+| June 21, 2026 | OnCue migrated from `ktrowbridge/oncue` to `KevTrowbridge/oncue` |
+
+---
+
+## 3. Repository States
+
+### `KevTrowbridge/oncue` — canonical repo
+
+| Asset | Status |
+|---|---|
+| `CLAUDE.md` | Complete — AI behavior rules |
+| `docs/FOUNDER_DECISIONS.md` | Complete — 24 sections, all approved decisions recorded |
+| `docs/architecture/mvp-ux-architecture.md` | Complete — v3.0, all 11 screens, all Section 9 decisions |
+| `docs/architecture/data-interfaces.ts` | Complete draft — 44 exports; **7 conflicts with event-flow-master** (see §5) |
+| Application code | **None** |
 | Supabase project | None |
-| Lovable project | None |
+| Design system | None |
 
-**All pre-Phase 1 prerequisites are complete. Phase 1 may begin.**
+Last commit: `6952018` — "Add Lovable design phase founder decisions to decision log"
 
----
+### `kevtrowbridge/event-flow-master` — Lovable prototype
 
-## Confirmed Visual Design Direction
-
-These decisions were approved in the UI Critique review. They must be reflected in the Phase 1 Lovable prompt and honored in every subsequent phase.
-
-| Decision | Confirmed direction |
+| Asset | Status |
 |---|---|
-| App body background | All-black or near-black dark foundation across all screens |
-| Header / nav bar | Light cream or white — NOT blush, NOT pink. Creates visual separation from the black app body. |
-| Brand accent colors | Original pink/gold logo direction — used sparingly for key actions, badges, status indicators |
-| Logo in header | Include the OnCue wordmark/logo in the header if it stays clean. Light header + pink/gold logo is the intended look. |
-| Mobile cognitive load | Minimal. Same visual language as desktop. No decorative noise on mobile. |
-| Wedding Day Mode | Maximum contrast, minimum content, large touch targets. All-black with white text is ideal for outdoor use in bright light. |
-| What does NOT belong | Blush, pastel pink backgrounds, busy headers, decorative overlays, high-saturation color blocks. |
+| Template | `tanstack_start_ts_2026-06-17` (Lovable scaffold) |
+| Design system | **Production-quality** — exact oklch brand tokens, Playfair Display + Inter |
+| Logo component | **Production-quality** — circular blush background, champagne-gold ring, gold OC monogram |
+| EditorialHeader | **Production-quality** — cream header band, dark workspace below |
+| IntelligencePanel | **Production-quality** — 4-part format (Why/Impact/Affected/Recommended Action) |
+| All 8 screens | **Working** — Dashboard, Setup/Questionnaire, Timeline, Day-Of, People, Status, Print & Share, Activity Detail |
+| Data models | **Demo-only** — hardcoded mock arrays, in-memory mutation, localStorage for questionnaire |
+| Intelligence engine | **Demo-only** — frontend heuristics labeled ⚠️ DEMO ONLY throughout |
+| Supabase | None |
+| Auth | None |
+| Collaboration model | None |
+
+Last commit: June 23, 2026 UTC — "Added demo-only comments"
+
+**Important constraint:** `event-flow-master` is actively connected to Lovable. Do not force-push, rebase, or amend pushed commits in this repo. The `AGENTS.md` file records this requirement.
 
 ---
 
-## What Was Completed This Session
+## 4. Audit Findings — What event-flow-master Built Correctly
 
-Updated `docs/claude-handoff/current.md`:
-- Added confirmed visual design direction as a permanent record
-- Embedded design requirements into the Phase 1 Lovable prompt
+These items match founder decisions exactly and are worth preserving:
 
-No code changes. No interface changes. No Lovable session started.
+- **Design system** — obsidian black workspace, cream header, blush + champagne gold, exact oklch values
+- **Intelligence explanation format** — Why / Impact / Affected Activities / Recommended Action (matches the approved 4-part spec)
+- **Photo group sequence** — `generatePhotoGroupsFromPeople` implements the approved 11-step portrait order (Bride Extended → Bride Grandparents → ... → Shared → ... → Groom Extended)
+- **Missing-person flow** — options model with reason, affected activities, estimated delay, and recommended choice
+- **Day-Of layout** — Now card / Up Next list / Attention section / one primary action per approved spec
+- **Tab navigation** — Setup / Timeline / Day-Of / People / Status / Print & Share (6 tabs, correct)
+- **Hero language** — "The timeline that adapts with you." already live on the Dashboard
+- **Questionnaire** — 7 sections built with People model that handles side-a/side-b, step-parents, extended family, VIPs
 
 ---
 
-## Files Created or Modified
+## 5. Interface Conflicts — Must Resolve Before Merge
 
-| File | Action |
-|---|---|
-| `docs/claude-handoff/archive/2026-06-22-1000-pre-design-direction.md` | Created (prior handoff archived) |
-| `docs/claude-handoff/current.md` | Updated (this file) |
+These conflicts exist between `docs/architecture/data-interfaces.ts` and `event-flow-master`'s actual types. All 7 must be resolved in `data-interfaces.ts` before any code migrates to `oncue`. Merging without resolving these causes the BeHive rewiring problem in reverse.
+
+| # | Conflict | `data-interfaces.ts` | `event-flow-master` | Severity |
+|---|---|---|---|---|
+| 1 | `EventStatus` values | 7 PascalCase states: `Draft \| InProgress \| ReviewNeeded \| Ready \| Live \| Completed \| Archived` | 4 lowercase states: `planning \| on-track \| draft \| complete` | **High** |
+| 2 | `Activity.startTime` type | `"HH:MM"` string | ISO datetime string | **High** |
+| 3 | `Activity.anchorType` | 4-value enum (`Locked / Preferred / Flexible / MovableWithApproval`) | `isAnchor: boolean` | **Medium** |
+| 4 | `Activity.priority` | 5-value enum (`Critical / Important / Flexible / Optional / Buffer`) | `isOptional: boolean` | **Medium** |
+| 5 | Duration field names | `durationMinutes`, `minimumDurationMinutes` | `duration`, `minDuration` | **Medium** |
+| 6 | Notes fields | `internalNotes` (owner-only) + `vendorFacingNotes` (separate) | Single `notes: string` field | **Medium** |
+| 7 | Location model | `locationId: string` reference to `EventLocation` table | Inline `location: string` + `locationInfo` object | **Medium** |
+
+### Types in event-flow-master not yet in data-interfaces.ts (need to add)
+
+| Type | Where | Value |
+|---|---|---|
+| `ActivityStatus` | `oncue-data.ts` | 7 execution states: `on-track / needs-adjustment / delayed / recalculating / conflict / at-risk / complete` |
+| `StatusExplanation` | `oncue-data.ts` | The 4-part explanation object (why/impact/affected/recommendation) — this is what the real solver will output |
+| `HealthScore` | `oncue-data.ts` | Event-level health summary with attention list and conflict count |
+| `PhotoGroup` | `oncue-data.ts` | kind (bride-side/shared/groom-side/custom), deferred flag, missing persons |
+| `MissingPersonImpact` | `oncue-data.ts` | Options with reason/affected/delay estimate for missing-person flow |
+| `RelationalBuffer` | `oncue-data.ts` | Before/after/travel buffer per activity |
+| `QPerson` model | `questionnaire.ts` | `side: "side-a" \| "side-b" \| "shared"` + `group: PersonGroup` — richer than current `GroupParticipant` |
+| `QRelationship` | `questionnaire.ts` | Family relationship kind (married/divorced/remarried/step/single) |
+
+---
+
+## 6. Recommended Merge Sequence (no merge started)
+
+**Phase 0 — Interface reconciliation** ← **current gating step**
+Update `docs/architecture/data-interfaces.ts` to resolve all 7 conflicts and add the 8 missing types. No application code changes. This is a documentation/interface task only.
+
+**Phase 1 — Design system and brand components**
+Copy to `oncue`: `styles.css`, `Logo.tsx`, `EditorialHeader.tsx`, `IntelligencePanel.tsx`, `HealthCard.tsx`, `InfoTip.tsx`. These have no data model dependencies and no logic. Production-quality; do not rebuild from scratch.
+
+**Phase 2 — Route structure and UI components**
+Copy all routes and `src/components/ui/` to `oncue`. At this point `oncue` becomes the working application repo and `event-flow-master` becomes the backup/staging repo.
+
+**Phase 3 — Supabase schema and real persistence**
+Write schema, migrations, and client wiring. Remove or quarantine the hardcoded mock arrays and `localStorage` persistence.
+
+**Phase 4 — Real intelligence engine**
+`IntelligencePanel` already has the right shape. `StatusExplanation` already has the right fields. The real constraint solver replaces the heuristic bodies in `computeHealth` and `explainStatus`.
+
+---
+
+## 7. Founder Review Required
+
+**Recommended founder action before interface reconciliation begins:**
+
+Review the 7 conflict table in §5 and confirm one resolution for each. The most consequential is conflict #1 (`EventStatus` values) because it affects every screen. The two options are:
+
+- **Adopt event-flow-master's 4 states** (simpler, but loses ReviewNeeded, Ready, Live distinctions)
+- **Adopt data-interfaces.ts's 7 states** (recommended — preserves full lifecycle; event-flow-master components need updating)
+
+The other 6 conflicts are technical naming decisions. Claude Code will resolve them in `data-interfaces.ts` once the EventStatus direction is confirmed.
+
+---
+
+## Review Status
+
+Visible to founder: Yes — this handoff file + the audit report produced in chat
+Founder review recommended: Yes — confirm EventStatus resolution direction before interface reconciliation begins
+Next step: See §8 below
+
+---
+
+## 8. Risks and Concerns
+
+| Risk | Severity | Notes |
+|---|---|---|
+| Merging before interface reconciliation | High | Will recreate the BeHive rewiring problem. Every component would need immediate rework. Do not skip Phase 0. |
+| Continuing Lovable iteration after merge starts | Medium | If Lovable keeps generating into `event-flow-master` after migration to `oncue` begins, the two repos drift again. Decide the Lovable handoff point before Phase 2. |
+| `event-flow-master` AGENTS.md rule | Medium | Lovable requires no force-push/rebase on connected branches. If `oncue` becomes the Lovable-connected repo in a future step, this rule must follow it. |
+| EventStatus conflict | Medium | The 4-state model in event-flow-master has already been used to build the Dashboard and event cards. Changing to 7 states requires updating those components. Acceptable cost, but must be planned. |
+| Intelligence engine labeled DEMO ONLY | Low | The `oncue-data.ts` intelligence engine is well-structured but explicitly a placeholder. It produces correct-looking output from incorrect logic. Do not treat it as a validated constraint solver. |
+
+---
+
+## 9. Exact Successor Prompt
+
+Use this prompt to begin the interface reconciliation work in the next Claude Code session:
+
+```
+Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
+
+Task: Reconcile docs/architecture/data-interfaces.ts with the actual types
+used in event-flow-master, based on the completed repository audit.
+
+Read first:
+- docs/claude-handoff/current.md (the full audit summary)
+- docs/architecture/data-interfaces.ts (current state)
+- docs/FOUNDER_DECISIONS.md (approved decisions)
+
+Then update docs/architecture/data-interfaces.ts to:
+
+1. Resolve all 7 interface conflicts (see §5 of current.md):
+   - EventStatus: adopt the 7-state PascalCase model from data-interfaces.ts;
+     note that event-flow-master components will need updating when code migrates
+   - Activity.startTime: keep "HH:MM" string (simpler; ISO datetimes are a
+     Supabase concern, not a UI interface concern)
+   - Activity.anchorType: keep the 4-value enum; add a derived boolean helper note
+   - Activity.priority: keep the 5-value enum; add isOptional as a derived value note
+   - Duration fields: keep durationMinutes / minimumDurationMinutes
+   - Notes fields: keep the two-field separation (internalNotes / vendorFacingNotes)
+   - Location model: keep locationId reference; document the event-flow-master
+     inline approach as a display-only convenience
+
+2. Add the 8 types that exist in event-flow-master but not yet in data-interfaces.ts:
+   - ActivityStatus (7 execution states)
+   - StatusExplanation (4-part explanation: why/impact/affected/recommendation)
+   - HealthScore (event health summary)
+   - PhotoGroup (kind/deferred/missing — richer than current GroupPhotoGroup)
+   - MissingPersonImpact (options with reason/affected/delay)
+   - RelationalBuffer (before/after/travel buffers per activity)
+   - Person (adopting QPerson's side/group model, renamed to align with
+     Participant model decision in FOUNDER_DECISIONS.md)
+   - RelationshipKind (married/divorced/remarried/step/single)
+
+3. Keep all existing types that have no conflict.
+4. Add clear comments noting which types supersede earlier versions.
+5. Do not create React components.
+6. Do not create Supabase migrations.
+7. Do not touch any other file in this session.
+
+After updating: commit and push to KevTrowbridge/oncue. Report the final
+commit hash and confirm which conflicts remain unresolved if any.
+```
 
 ---
 
@@ -70,248 +221,9 @@ No code changes. No interface changes. No Lovable session started.
 
 | Hash | Message | Location |
 |---|---|---|
-| `dd5307e` | Record interface commit hash in live handoff | KevTrowbridge/oncue |
-| `73e42bc` | Write TypeScript data interfaces for Phase 1 Lovable scaffold | KevTrowbridge/oncue |
-| `f99bd21` | Add 10-phase OnCue implementation plan to live handoff | KevTrowbridge/oncue |
+| `6952018` | Add Lovable design phase founder decisions to decision log | KevTrowbridge/oncue ✓ |
+| `a9b0921` | Consolidate founder decisions log — make Markdown file canonical source of truth | KevTrowbridge/oncue ✓ |
+| `ab63fbf` | Add confirmed visual design direction to Phase 1 Lovable prompt | KevTrowbridge/oncue ✓ |
 
----
-
-## Review Status
-Visible to founder: Yes — this file in VS Code
-Founder review recommended: Review the Lovable prompt below before pasting into Lovable
-Next step: Open Lovable, connect to `KevTrowbridge/oncue`, paste the prompt below
-
----
-
-## Phase 1 Lovable Scaffolding Prompt
-
-**How to use:**
-1. Log into Lovable
-2. Open or create the OnCue project connected to `KevTrowbridge/oncue`
-3. Paste everything inside the code block below as the first message
-
----
-
-```
-Build the static UI scaffold for OnCue — a Timeline Intelligence platform for
-wedding photographers. This is Phase 1: static only, no data fetching, no API
-calls, no Supabase, no environment variables required.
-
-═══════════════════════════════════════════════════════════
-VISUAL DESIGN
-═══════════════════════════════════════════════════════════
-
-OnCue has a confirmed visual direction. Follow it precisely.
-
-FOUNDATION
-- App body background: #0A0A0A (near-black). Every screen, every panel,
-  every bottom sheet, every modal uses this as the base surface color.
-- Card / elevated surfaces: #141414 or #1A1A1A — slightly lighter than
-  the background to create depth without adding color.
-- All body text on dark surfaces: #F5F5F5 (near-white).
-- Muted / secondary text on dark: #888888.
-
-HEADER / NAV BAR
-- The top app bar and global navigation use a LIGHT CREAM or WHITE
-  background: #F9F7F4 (warm cream) or #FFFFFF.
-- This is a deliberate design choice — the light header creates clear
-  visual separation from the black app body below it.
-- Do NOT use blush, pink, lavender, or any tinted color for the header.
-  Light cream or white only.
-- Text in the header: #1A1A1A (near-black).
-- Include the OnCue wordmark or a text logo in the header. Keep it clean.
-  No decorative backgrounds, gradients, or image textures on the header.
-
-BRAND ACCENT COLORS (pink / gold)
-- Primary brand accent: a warm pink in the range of #D4848E to #E8A4B0
-  (rose-pink, not hot pink, not blush pastel). Use for: primary action
-  buttons, active nav indicators, key badges, status highlights.
-- Secondary accent: a warm gold in the range of #C9922A to #D4A853.
-  Use sparingly for: premium or important indicators, logo mark if any.
-- These accents appear against the dark background (#0A0A0A). They should
-  be vivid enough to read at a glance — not muted or washed out.
-- Do NOT use pink or gold as a background color for any screen or panel.
-
-TYPOGRAPHY
-- Font: a clean, modern sans-serif. Inter or a similar professional font.
-  Not decorative, not script.
-- Heading weight: semibold or bold.
-- Body weight: regular.
-- No decorative or script typography anywhere in the MVP scaffold.
-
-STATUS BADGES AND INDICATORS
-- EventStatus badges: pill-shaped, small. Use the brand accent or neutral
-  tones — not bright saturated colors.
-  - Draft: gray (#444444 bg, #AAAAAA text)
-  - InProgress: muted blue-gray (#1E3A4C bg, #7AAECC text)
-  - ReviewNeeded: warm amber (#3D2800 bg, #D4A853 text)
-  - Ready: muted green (#0D2D1A bg, #4CAF7D text)
-  - Live: brand pink (#3D0D15 bg, #E8A4B0 text)
-  - Completed: neutral (#2A2A2A bg, #888888 text)
-  - Archived: neutral (#1A1A1A bg, #555555 text)
-- VendorStatus badges:
-  - Invited: gray
-  - Viewed: amber
-  - Confirmed: green
-
-WEDDING DAY MODE — SPECIFIC RULES
-- This screen is used outdoors, in bright sunlight, with one hand.
-  Maximum contrast. Minimum visual noise.
-- Background: #000000 (pure black — even darker than the rest of the app).
-- NOW card: white text on black, large type, generous padding.
-- NEXT rows: smaller text, muted (#888888), no borders.
-- "Running Late" button: brand pink fill, white text, full-width or
-  nearly full-width, large enough for a single tap with a thumb.
-- Attention flag: amber or red indicator, not a subtle icon.
-- Emergency contacts button: clearly visible secondary button, not buried.
-- No decorative elements, gradients, or images on this screen.
-
-═══════════════════════════════════════════════════════════
-DATA SHAPES
-═══════════════════════════════════════════════════════════
-
-The data shapes for every component are already defined. They live in:
-  docs/architecture/data-interfaces.ts
-
-Import types from that file wherever needed. Do not invent your own data
-structures. Every prop type must match the interfaces in that file exactly.
-
-═══════════════════════════════════════════════════════════
-SCREENS — build all 9
-═══════════════════════════════════════════════════════════
-
-Use hardcoded static placeholder data that matches the interface shapes.
-Use realistic placeholder values — real wedding names, real times,
-real vendor names. No "Lorem ipsum", no "Activity 1", no "Couple Name".
-
-1. DASHBOARD — event list
-   - 2–3 hardcoded Event cards (use EventStatus variety: one InProgress,
-     one ReviewNeeded, one Ready or Live)
-   - Each card: couple names, event date, status badge, days-until chip,
-     pending proposals badge, VendorSummary chip (X of Y confirmed),
-     EventReadinessChecklist summary card near event date
-   - "Create Event" button — prominent
-   - Archived events section (collapsed at bottom)
-
-2. CREATE EVENT — form shell
-   - Couple name 1, couple name 2, event date, primary location (optional)
-   - Template selector: "Wedding" (only option in MVP)
-   - "Create" button — no submission logic
-
-3. TIMELINE EDITOR — planning mode
-   - Two-panel layout on desktop: activity list left, detail panel right
-   - Activity list: section dividers, activity rows with title / start time /
-     duration / location label / anchor type indicator / constraint warning badge
-   - Travel block rows: visually distinct (slightly indented or muted)
-   - Constraint warning: show inline on one activity as a real placeholder
-     (e.g. "Ceremony is locked at 4:00pm — portrait block may run long")
-   - Activity Detail Panel: all Activity fields from the interface
-   - Toolbar: undo / redo / pending proposals count / Review Required badge /
-     publish-share button
-   - On mobile: activity list full-width; detail panel as bottom sheet
-
-4. QUESTIONNAIRE — all 8 sections
-   - Section navigation (sidebar on desktop, tabs or accordion on mobile):
-     Core Details / Locations / Family & Wedding Party /
-     Group Photo Priorities / Vendors / Preferences / Priorities /
-     Emergency Contacts
-   - Each section: form fields matching the questionnaire interfaces
-   - Progress indicator per section (filled / empty ring or checkmark)
-   - "Invite couple to complete their sections" button
-
-5. GROUP PHOTO OPTIMIZER
-   - 3–4 placeholder groups with realistic names
-     (e.g. "Bride's Immediate Family", "Groom's Side + Grandparents",
-     "Full Wedding Party", "Couple Alone")
-   - Each group card: label / participant list / estimated duration /
-     GroupPhotoStatus badge / cross-group participant indicator
-   - Total estimated block time shown at top
-   - Drag handle for reordering
-   - "Sequence confirmed" toggle
-
-6. VENDOR MANAGEMENT
-   - Role list: DJ, Videographer, Florist, Hair/Makeup, Venue, Officiant
-   - Each row: role label / contact name / VendorStatus badge
-     (show variety: one Invited, one Viewed, one Confirmed)
-   - "Copy link" button per row; "Generate link" for roles without one
-   - "Preview vendor view" button per row
-
-7. CHANGE REVIEW
-   - Two sections: "Needs your decision" (couple proposals — Workflow A)
-     and "Review Required" (collaborator changes already applied — Workflow B)
-   - Couple proposals: 1–2 placeholder ChangeProposal rows each showing
-     original value vs. proposed value / submitter / Approve + Decline buttons
-   - Review Required: 1 placeholder ChangeLogEntry row with Revert button
-   - "What's Changed Since Last Visit" dismissable banner at top
-
-8. WEDDING DAY MODE
-   - Follow the Wedding Day Mode visual rules above exactly
-   - NOW card: activity title / location / assigned people / time remaining
-   - NEXT rows: 2–3 upcoming activities (title, time — minimal)
-   - Attention flag: visible amber indicator (placeholder — not wired)
-   - "Running Late" button: full-width or nearly full-width, brand pink,
-     accessible in one tap from the main view
-     Opens delay panel with:
-       — delay amount selector: 5 / 10 / 15 / 20 / 30+ min buttons
-       — affected activities list (2–3 placeholder rows)
-       — recovery option cards (2 placeholder cards with descriptions)
-       — notification candidate list with checkboxes
-       — Confirm button
-   - "Emergency contacts" button: opens panel with name / role / phone rows;
-     one-tap-to-call layout
-
-9. PDF EXPORT
-   - 5 format option cards: Compact Itinerary / Full Timeline /
-     Vendor-Filtered / Group Photo Only / Couple's View
-   - Each card: format name / one-line description / "Download" button
-     (placeholder — no actual PDF generation)
-   - Last download date shown as hardcoded placeholder
-   - Warning banner: "No PDF downloaded yet — download before the wedding day"
-     (shown as a placeholder; styled to be noticeable, not alarming)
-
-═══════════════════════════════════════════════════════════
-LAYOUT AND INTERACTION REQUIREMENTS
-═══════════════════════════════════════════════════════════
-
-- Mobile-first. All screens must work at 390px wide.
-- Wedding Day Mode must be fully operable with one thumb in portrait mode.
-- Primary actions in the bottom half of the screen on mobile.
-- Touch targets: minimum 44×44pt on all interactive elements.
-- "Running Late" button and emergency contacts reachable in 2 taps
-  from the main Wedding Day screen.
-- Planning Mode on mobile: bottom tab bar navigation; detail panel as
-  bottom sheet (not a separate page).
-- Questionnaire on mobile: single-column scrollable form.
-- All placeholder data must use realistic values — real names, real times,
-  real wedding-day language.
-
-═══════════════════════════════════════════════════════════
-DO NOT BUILD
-═══════════════════════════════════════════════════════════
-
-- Supabase client or any data fetching
-- Authentication or session management
-- Real constraint logic or time calculations
-- Real PDF generation
-- Role-based routing guards
-- Any .env variables or configuration
-- Any feature not listed above
-
-═══════════════════════════════════════════════════════════
-GOAL
-═══════════════════════════════════════════════════════════
-
-Every screen loads without errors. Placeholder data uses the correct
-interface shapes. The visual design is established and matches the
-confirmed direction above. A Claude Code audit follows before any
-real data is wired.
-```
-
----
-
-## Exact Next Step
-
-**Founder action:** Open Lovable, connect to `KevTrowbridge/oncue`, paste the prompt above.
-
-**After Phase 1 is complete:** Return to Claude Code with:
-> "Phase 1 Lovable scaffold is complete. Run the Phase 2 code audit."
+No commits made this session. All changes are documentation only.
+`event-flow-master` last commit: June 23, 2026 UTC — Lovable-generated, do not rebase.
