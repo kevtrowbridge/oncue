@@ -189,7 +189,7 @@ This is the first time the founder can see the OnCue app running under the canon
 
 | Hash | Message | Location |
 |---|---|---|
-| *(pending)* | Phase 2: app scaffold, all routes, UI components | KevTrowbridge/oncue — not yet committed |
+| `3f57a91` | Phase 2: app scaffold, all routes, UI components | KevTrowbridge/oncue ✓ local only |
 | `f8aba29` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
 | `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
 
