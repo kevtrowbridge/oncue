@@ -184,7 +184,7 @@ Do not:
 
 | Hash | Message | Location |
 |---|---|---|
-| `[this session]` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
+| `f8aba29` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
 | `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
 | `6952018` | Add Lovable design phase founder decisions to decision log | KevTrowbridge/oncue ✓ |
 | `a9b0921` | Consolidate founder decisions log — make Markdown file canonical source of truth | KevTrowbridge/oncue ✓ |
