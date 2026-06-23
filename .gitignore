@@ -10,6 +10,7 @@
 
 # Dependencies
 node_modules/
+package-lock.json
 
 # Logs
 logs/
@@ -25,6 +26,8 @@ build/
 out/
 .nuxt/
 .cache/
+.vinxi/
+.output/
 
 # Editor and local temp files
 .vscode/settings.json

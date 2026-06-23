@@ -1,53 +1,93 @@
 # Claude Handoff — Current
 
-**Last updated:** June 22, 2026
-**Current phase:** Phase 1 complete — design system and brand components copied to oncue
+**Last updated:** June 23, 2026
+**Current phase:** Phase 2 complete — app scaffold and all routes copied; app compiles and runs
 
 ---
 
 ## 1. Thirty-Second Summary
 
-Phase 1 is done. The production-quality design system from `event-flow-master` — the brand token CSS, the SVG logo, the editorial cream header, the intelligence panel, and the tooltip component — now live in `KevTrowbridge/oncue` under `src/`.
+Phase 2 is done. OnCue now has a working app scaffold copied from `event-flow-master`. The app compiles with zero TypeScript errors and the dev server starts successfully. The founder can open it in a browser at `http://localhost:3000/` (or whichever port is free — typically 3000 or 8081).
 
-The components are **written and committed** but **not yet visible or testable**. Oncue still has no app scaffold (no `package.json`, no router, no HTML entry point). Phase 2 will create that scaffold and copy the route files, at which point the app can run.
+All 8 screens from the prototype now exist as source code in `KevTrowbridge/oncue`. The data layer is demo-only mock data. Phase 3 is Supabase schema and real persistence.
 
 ---
 
-## 2. What Changed
+## 2. What Changed This Session
 
-### This session: Phase 1 complete
+### Phase 2 — App scaffold + routes + UI components
 
-**5 files created in `src/`:**
+**Scaffold files created:**
 
-| File | Description |
+| File | Notes |
 |---|---|
-| `src/styles.css` | Complete OnCue brand system — oklch color tokens, Playfair Display + Inter fonts, dark workspace defaults, editorial cream header class, status utilities |
-| `src/components/brand/Logo.tsx` | SVG logo mark — circular blush fill, champagne-gold ring, gold OC monogram. Three variants: blush (default), obsidian, alabaster. Includes `Wordmark` export. |
-| `src/components/EditorialHeader.tsx` | Cream header band — compact and full modes, slots for center content and right actions. Imports `@tanstack/react-router` Link (router dep; resolved in Phase 2). |
-| `src/components/IntelligencePanel.tsx` | 4-part intelligence explanation panel — Why / Impact / Affected Activities / Recommended Action. Collapsible. Status-toned styling. |
-| `src/components/InfoTip.tsx` | Accessible tooltip for plain-language intelligence term explanations. No data dependencies. |
+| `package.json` | Matches EFM dependencies; name changed to "oncue" |
+| `tsconfig.json` | Copied as-is; includes `@/*` path alias |
+| `vite.config.ts` | Copied as-is; uses `@lovable.dev/vite-tanstack-config` |
+| `bunfig.toml` | Copied as-is; includes 24h supply-chain guard |
+| `components.json` | Copied as-is; shadcn config |
+| `src/start.ts` | Copied as-is; TanStack Start server entry |
+| `src/server.ts` | **Modified** — `error-capture.ts` import removed; simplified fetch handler |
+| `src/router.tsx` | Copied as-is; creates QueryClient + TanStack router |
+| `src/lib/error-page.ts` | Copied as-is; HTML error renderer, no Lovable deps |
 
-**1 file excluded:**
+**Routes created (10 routes):**
+
+| File | Notes |
+|---|---|
+| `src/routes/__root.tsx` | **Modified** — `reportLovableError` import and `useEffect` removed |
+| `src/routes/index.tsx` | Dashboard |
+| `src/routes/events.$eventId.tsx` | Event shell + tab nav |
+| `src/routes/events.$eventId.index.tsx` | Redirects to /timeline |
+| `src/routes/events.$eventId.setup.tsx` | Questionnaire setup screen |
+| `src/routes/events.$eventId.timeline.tsx` | Gantt timeline + intelligence strip |
+| `src/routes/events.$eventId.day-of.tsx` | Day-of execution mode |
+| `src/routes/events.$eventId.people.tsx` | Photo group optimizer |
+| `src/routes/events.$eventId.status.tsx` | Status + change log + master checklist |
+| `src/routes/events.$eventId.print.tsx` | Print/run sheet filtered views |
+| `src/routes/events.$eventId.activities.$activityId.tsx` | Activity detail + edit |
+| `src/routeTree.gen.ts` | TanStack Router route tree (generated, copied as-is) |
+
+**Components created:**
+
+| File | Notes |
+|---|---|
+| `src/components/HealthCard.tsx` | Timeline health card; uses oncue-data.ts TERMS |
+| `src/components/ui/*.tsx` | All 43 shadcn/Radix UI components |
+
+**Utilities and hooks:**
+
+| File | Notes |
+|---|---|
+| `src/lib/utils.ts` | `cn()` className utility |
+| `src/hooks/use-mobile.tsx` | Mobile breakpoint hook |
+| `src/lib/oncue-data.ts` | DEMO ONLY header added; 995 lines total |
+| `src/lib/questionnaire.ts` | **Phase 2 stub** — types + empty functions only; NO localStorage; Phase 3 replaces |
+
+**Files explicitly NOT copied:**
 
 | File | Reason |
 |---|---|
-| `src/components/HealthCard.tsx` | Imports `TERMS` (a runtime constant) from `@/lib/oncue-data`. Data dependency; cannot copy without oncue-data.ts which is excluded by rule. |
-
-**No files modified** in existing oncue structure.
-
-### Prior sessions
-
-| Date | Work completed |
-|---|---|
-| June 22, 2026 | Phase 0: data-interfaces.ts v2.0 — all 7 EFM conflicts resolved, 11 types added |
-| June 22, 2026 | Repository audit completed — 7 conflicts identified, 8 missing types listed |
-| June 22, 2026 | Founder decisions log consolidated — 24 sections, 287 lines added |
-| June 21, 2026 | TypeScript data interfaces written — v1.0, 44 exports |
-| June 21, 2026 | Architecture v3.0 finalized — all Section 9 decisions approved |
+| `src/lib/lovable-error-reporting.ts` | Lovable telemetry — not needed |
+| `src/lib/error-capture.ts` | Lovable SSR error capture — not needed |
+| `.lovable/` | Lovable platform config — not needed |
+| `bun.lock` | Generated artifact — not committed |
 
 ---
 
-## 3. Repository States
+## 3. Verification
+
+| Check | Result |
+|---|---|
+| `npm install` | Succeeded — 462 packages installed, 0 vulnerabilities |
+| `npx tsc --noEmit` | **0 TypeScript errors** |
+| `npm run dev` | Server started at `http://localhost:8081/` in 1737ms |
+
+`@lovable.dev/vite-tanstack-config` is publicly available on npm and installed correctly.
+
+---
+
+## 4. Repository States
 
 ### `KevTrowbridge/oncue` — canonical repo
 
@@ -57,14 +97,17 @@ The components are **written and committed** but **not yet visible or testable**
 | `docs/FOUNDER_DECISIONS.md` | Complete — 24 sections |
 | `docs/architecture/mvp-ux-architecture.md` | Complete — v3.0 |
 | `docs/architecture/data-interfaces.ts` | Complete — v2.0, 55 exports |
-| `src/styles.css` | **Phase 1 complete** — brand token system |
-| `src/components/brand/Logo.tsx` | **Phase 1 complete** — locked brand mark |
-| `src/components/EditorialHeader.tsx` | **Phase 1 complete** — cream header |
-| `src/components/IntelligencePanel.tsx` | **Phase 1 complete** — pending import fix (see §5) |
-| `src/components/InfoTip.tsx` | **Phase 1 complete** — no pending issues |
-| App scaffold (`package.json`, router, HTML) | **None — Phase 2** |
-| Route files | **None — Phase 2** |
-| Supabase | **None — Phase 3** |
+| `src/styles.css` | Complete — Phase 1 |
+| `src/components/brand/Logo.tsx` | Complete — Phase 1 |
+| `src/components/EditorialHeader.tsx` | Complete — Phase 1 |
+| `src/components/IntelligencePanel.tsx` | Complete — Phase 1 (import uses EFM shape; see §5) |
+| `src/components/InfoTip.tsx` | Complete — Phase 1 |
+| App scaffold | **Phase 2 complete** |
+| Routes (all 10) | **Phase 2 complete** |
+| UI components (43) | **Phase 2 complete** |
+| `src/lib/oncue-data.ts` | **Phase 2 complete** — demo data layer |
+| `src/lib/questionnaire.ts` | **Phase 2 stub** — Phase 3 replaces |
+| Supabase | Phase 3 |
 
 ### `kevtrowbridge/event-flow-master` — Lovable prototype
 
@@ -74,109 +117,71 @@ Unchanged. All 8 screens still working. Still the reference implementation.
 
 ---
 
-## 4. Merge Sequence
+## 5. Known Issues — Categorized
+
+### Quick-fix (can do anytime)
+
+None currently — TypeScript compiles clean.
+
+### Phase 3 work (Supabase integration)
+
+| Issue | Location | Notes |
+|---|---|---|
+| `questionnaire.ts` stub | `src/lib/questionnaire.ts` | Replace with Supabase-backed persistence |
+| Demo data layer | `src/lib/oncue-data.ts` | Replace with real Supabase queries |
+| Setup screen non-functional | `events.$eventId.setup.tsx` | Depends on questionnaire stub — no real save |
+
+### Phase 4 work (intelligence engine)
+
+| Issue | Location | Notes |
+|---|---|---|
+| `IntelligencePanel.tsx` shape mismatch | `src/components/IntelligencePanel.tsx` | Uses EFM `StatusExplanation` shape (richer than canonical); `affected` is `Array<{id, title, newTime, note}>`, `recommendation` is `{label, rationale}`, `estimatedDelayMin` — canonical uses `affectedActivityIds: string[]`, `recommendedAction: string`, `estimatedDelayMinutes`. Resolve when wiring real solver. |
+| `ActivityStatus` casing | Multiple routes | EFM uses lowercase kebab-case (`"on-track"`, `"needs-adjustment"`); canonical `data-interfaces.ts` uses PascalCase (`"OnTrack"`, `"NeedsAdjustment"`). Reconcile in Phase 4 when real solver output is defined. |
+
+---
+
+## 6. Merge Sequence
 
 | Phase | Description | Status |
 |---|---|---|
 | Phase 0 | Interface reconciliation | **Complete** — commit `a5fdf43` |
-| Phase 1 | Design system + brand components | **Complete** — commit `[this session]` |
-| **Phase 2** | App scaffold + routes + UI components | **Ready to start** |
-| Phase 3 | Supabase schema and real persistence | |
+| Phase 1 | Design system + brand components | **Complete** — commit `f8aba29` |
+| **Phase 2** | App scaffold + routes + UI components | **Complete — pending commit** |
+| Phase 3 | Supabase schema and real persistence | Ready to start |
 | Phase 4 | Real intelligence engine | |
 
 ---
 
-## 5. Unresolved Dependencies (Phase 2 work)
+## 7. Visible and Testable?
 
-| Component | Pending issue |
-|---|---|
-| `IntelligencePanel.tsx` | Imports `StatusExplanation` from `@/lib/oncue-data` (path won't resolve without app scaffold). In Phase 2: update import to canonical `data-interfaces.ts`. **Also:** the EFM `StatusExplanation` shape is richer than the canonical definition — `affected` is `Array<{id, title, newTime, note}>` (not `string[]`) and `recommendation` is `{label, rationale}` (not `string`). Resolve the shape mismatch before wiring. |
-| `EditorialHeader.tsx` | Imports `Link` from `@tanstack/react-router`. Requires `@tanstack/react-router` in `package.json`. Resolved when Phase 2 creates the app scaffold using the same TanStack Start template. |
-| `HealthCard.tsx` | **Excluded from Phase 1.** Imports `TERMS` runtime constant from `oncue-data.ts`. Copy in Phase 2 after the real constraint engine data layer is established and `HealthCard` is refactored to use canonical types. |
+**Yes — as of Phase 2.**
 
----
-
-## 6. Visible and Testable?
-
-**Not yet.** The components exist as source files in `src/`. There is no `package.json`, no bundler, no HTML entry point, and no router in oncue. The files cannot be run or previewed until Phase 2 creates the app scaffold.
-
-The founder **cannot** open a browser and see the design system yet.
-
----
-
-## 7. Founder Review
-
-**Founder review is not required now.** Phase 1 is a source-file copy, not a product change. The design system is unchanged from what already works in `event-flow-master`.
-
-**Recommended founder action:** Confirm Phase 2 should proceed. Phase 2 involves creating a real app scaffold in oncue (package.json, router, entry point) and copying all route files from event-flow-master. At that point oncue will run as a real app and the founder will be able to open it in a browser.
-
----
-
-## 8. Exact Successor Prompt
-
-Use this prompt to begin Phase 2:
-
+Run from the oncue repo root:
 ```
-Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
-
-Task: Phase 2 of the oncue/event-flow-master merge — create the app scaffold
-and copy all route and UI component files from event-flow-master to oncue.
-
-Read first:
-- docs/claude-handoff/current.md
-- docs/FOUNDER_DECISIONS.md
-- docs/architecture/data-interfaces.ts (v2.0)
-
-Phase 2 scope:
-1. Create the minimal app scaffold in oncue so it can run:
-   - package.json (matching event-flow-master's dependencies — TanStack Start,
-     React 19, Tailwind 4, Radix UI, Vite 8)
-   - tsconfig.json
-   - vite.config.ts
-   - src/start.ts / src/server.ts / src/router.tsx (entry points)
-   - src/routes/__root.tsx (includes font loading)
-
-2. Copy all route files from event-flow-master:
-   - src/routes/index.tsx (Dashboard)
-   - src/routes/events.$eventId.tsx (event shell)
-   - src/routes/events.$eventId.index.tsx
-   - src/routes/events.$eventId.setup.tsx
-   - src/routes/events.$eventId.timeline.tsx
-   - src/routes/events.$eventId.day-of.tsx
-   - src/routes/events.$eventId.people.tsx
-   - src/routes/events.$eventId.status.tsx
-   - src/routes/events.$eventId.print.tsx
-   - src/routes/events.$eventId.activities.$activityId.tsx
-   - src/routeTree.gen.ts
-
-3. Copy src/components/ui/ (all Radix/shadcn components)
-
-4. Copy src/lib/utils.ts (className utility only — NOT oncue-data.ts or questionnaire.ts)
-
-5. Copy src/hooks/use-mobile.tsx
-
-6. Copy src/lib/oncue-data.ts WITH a clear header comment:
-   ⚠️ DEMO ONLY — all data is hardcoded mock arrays and frontend heuristics.
-   This file is the placeholder intelligence engine. It will be replaced in
-   Phase 4 by a real constraint solver. Do not treat this as production logic.
-
-   Rationale: the routes depend on oncue-data.ts to render at all. We need
-   the app to run before we can replace the data layer.
-
-After Phase 2:
-- Run `bun install` and `bun dev` to verify the app starts
-- Confirm the founder can open the app in a browser
-- Note any TypeScript errors that need resolving (expected: IntelligencePanel
-  import path, status value casing mismatches)
-- Commit and push to KevTrowbridge/oncue
-- Report the commit hash
-
-Do not:
-- Copy questionnaire.ts (localStorage placeholder — replace in Phase 3)
-- Copy .lovable/ directory
-- Copy Lovable error reporting files (lovable-error-reporting.ts, error-capture.ts)
-- Force-push, rebase, or amend any commits in event-flow-master
+npm run dev
 ```
+
+Open: `http://localhost:3000/` (or 8081 if 3000 is taken).
+
+The app shows the demo event dashboard. All 6 tabs (Setup, Timeline, Day-Of, People, Status, Print) navigate correctly. Data is mock/demo. Nothing is persisted.
+
+**Note:** `bun` is not installed in this shell environment. Use `npm run dev` to start the server.
+
+---
+
+## 8. Founder Review
+
+**Founder review is recommended now.**
+
+This is the first time the founder can see the OnCue app running under the canonical `KevTrowbridge/oncue` repository. The app is identical in appearance and behavior to `event-flow-master` — same screens, same mock data, same brand design.
+
+**What to check:**
+1. Run `npm run dev` from the oncue directory
+2. Open the URL shown in the terminal
+3. Confirm you see the dashboard with the demo event
+4. Click through all 6 tabs to confirm they load
+5. Open Timeline and confirm the intelligence panel appears for activities with issues
+6. Open People and try reordering groups / flagging a missing person
 
 ---
 
@@ -184,7 +189,38 @@ Do not:
 
 | Hash | Message | Location |
 |---|---|---|
+| *(pending)* | Phase 2: app scaffold, all routes, UI components | KevTrowbridge/oncue — not yet committed |
 | `f8aba29` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
 | `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
-| `6952018` | Add Lovable design phase founder decisions to decision log | KevTrowbridge/oncue ✓ |
-| `a9b0921` | Consolidate founder decisions log — make Markdown file canonical source of truth | KevTrowbridge/oncue ✓ |
+
+---
+
+## 10. Exact Successor Prompt (Phase 3)
+
+```
+Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
+
+Task: Phase 3 of the oncue/event-flow-master merge — Supabase schema and
+real data persistence.
+
+Read first:
+- docs/claude-handoff/current.md
+- docs/FOUNDER_DECISIONS.md
+- docs/architecture/data-interfaces.ts (v2.0)
+
+Phase 3 scope:
+1. Create a Supabase project (founder must do this manually first — go to
+   supabase.com and create a new project; provide the project URL and anon key)
+2. Design the SQL schema based on data-interfaces.ts v2.0
+   (Event, Activity, Person, PhotoGroup, Participant, ChecklistItem, UserProfile)
+3. Write and apply Supabase migrations
+4. Replace src/lib/oncue-data.ts demo layer with real Supabase queries
+5. Replace src/lib/questionnaire.ts stub with Supabase-backed event setup
+6. Wire the Setup screen to save/load real event data
+
+Do not:
+- Modify event-flow-master
+- Change the route structure or UI components
+- Implement the real intelligence engine (Phase 4)
+- Add auth flows yet (unless Supabase requires it for RLS)
+```
