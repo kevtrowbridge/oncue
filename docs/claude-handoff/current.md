@@ -1,69 +1,49 @@
 # Claude Handoff — Current
 
 **Last updated:** June 22, 2026
-**Current phase:** Interface reconciliation complete — ready for Phase 1 (design system migration)
+**Current phase:** Phase 1 complete — design system and brand components copied to oncue
 
 ---
 
 ## 1. Thirty-Second Summary
 
-Two OnCue repositories exist. `KevTrowbridge/oncue` is the canonical repo — it now has fully reconciled TypeScript interfaces (v2.0) that resolve all 7 conflicts with `event-flow-master` and add 11 new types. `kevtrowbridge/event-flow-master` is the Lovable prototype with all 8 screens working and a production-quality design system.
+Phase 1 is done. The production-quality design system from `event-flow-master` — the brand token CSS, the SVG logo, the editorial cream header, the intelligence panel, and the tooltip component — now live in `KevTrowbridge/oncue` under `src/`.
 
-The interface layer is now the single source of truth. Phase 1 (copy design system components) can begin.
+The components are **written and committed** but **not yet visible or testable**. Oncue still has no app scaffold (no `package.json`, no router, no HTML entry point). Phase 2 will create that scaffold and copy the route files, at which point the app can run.
 
 ---
 
 ## 2. What Changed
 
-### This session: interface reconciliation completed
+### This session: Phase 1 complete
 
-`docs/architecture/data-interfaces.ts` updated from v1.0 to v2.0.
+**5 files created in `src/`:**
 
-**7 conflicts resolved:**
+| File | Description |
+|---|---|
+| `src/styles.css` | Complete OnCue brand system — oklch color tokens, Playfair Display + Inter fonts, dark workspace defaults, editorial cream header class, status utilities |
+| `src/components/brand/Logo.tsx` | SVG logo mark — circular blush fill, champagne-gold ring, gold OC monogram. Three variants: blush (default), obsidian, alabaster. Includes `Wordmark` export. |
+| `src/components/EditorialHeader.tsx` | Cream header band — compact and full modes, slots for center content and right actions. Imports `@tanstack/react-router` Link (router dep; resolved in Phase 2). |
+| `src/components/IntelligencePanel.tsx` | 4-part intelligence explanation panel — Why / Impact / Affected Activities / Recommended Action. Collapsible. Status-toned styling. |
+| `src/components/InfoTip.tsx` | Accessible tooltip for plain-language intelligence term explanations. No data dependencies. |
 
-| # | Conflict | Resolution |
-|---|---|---|
-| 1 | `EventStatus` values | Kept 7-state PascalCase model; annotated EFM 4-state as subset |
-| 2 | `Activity.startTime` type | Kept "HH:MM" string; annotated ISO as Supabase persistence concern |
-| 3 | `Activity.anchorType` | Kept 4-value enum; documented `isAnchor` boolean as derived |
-| 4 | `Activity.priority` | Kept 5-value enum; documented `isOptional` boolean as derived |
-| 5 | Duration field names | Kept `durationMinutes` / `minimumDurationMinutes`; noted EFM rename on migration |
-| 6 | Notes fields | Kept `internalNotes` / `vendorFacingNotes` separation; documented role-access reason |
-| 7 | Location model | Kept `locationId` foreign key; documented EFM inline as display-only convenience |
+**1 file excluded:**
 
-**11 new exports added:**
+| File | Reason |
+|---|---|
+| `src/components/HealthCard.tsx` | Imports `TERMS` (a runtime constant) from `@/lib/oncue-data`. Data dependency; cannot copy without oncue-data.ts which is excluded by rule. |
 
-| Export | Kind | Source |
-|---|---|---|
-| `ActivityStatus` | type | event-flow-master `oncue-data.ts` |
-| `PersonSide` | type | event-flow-master `questionnaire.ts` (QPerson) |
-| `PersonGroup` | type | event-flow-master `questionnaire.ts` |
-| `RelationshipKind` | type | event-flow-master `questionnaire.ts` |
-| `RelationalBuffer` | interface | event-flow-master `oncue-data.ts` |
-| `StatusExplanation` | interface | event-flow-master `oncue-data.ts` |
-| `HealthScore` | interface | event-flow-master `oncue-data.ts` |
-| `Person` | interface | new — supersedes `GroupParticipant` |
-| `PhotoGroup` | interface | event-flow-master `oncue-data.ts` |
-| `MissingPersonOption` | interface | event-flow-master `oncue-data.ts` |
-| `MissingPersonImpact` | interface | event-flow-master `oncue-data.ts` |
-
-**Additional v2.0 corrections:**
-- `Activity` gained `status: ActivityStatus | null` and `buffers: RelationalBuffer | null`
-- `GroupParticipant` marked `@deprecated` with reference to `Person`
-- `EventQuestionnaire.groupParticipants` annotated with migration note
-- `UserProfile.plan` corrected from `"Free" | "Pro"` to `"Free" | "Professional" | "Studio"` (aligns with §21 approved tiers)
-- Section header renamed from `WEDDING DAY MODE` to `DAY-OF MODE` (approved customer-facing language)
+**No files modified** in existing oncue structure.
 
 ### Prior sessions
 
 | Date | Work completed |
 |---|---|
+| June 22, 2026 | Phase 0: data-interfaces.ts v2.0 — all 7 EFM conflicts resolved, 11 types added |
 | June 22, 2026 | Repository audit completed — 7 conflicts identified, 8 missing types listed |
 | June 22, 2026 | Founder decisions log consolidated — 24 sections, 287 lines added |
-| June 22, 2026 | Visual design direction confirmed and embedded in Phase 1 Lovable prompt |
 | June 21, 2026 | TypeScript data interfaces written — v1.0, 44 exports |
 | June 21, 2026 | Architecture v3.0 finalized — all Section 9 decisions approved |
-| June 21, 2026 | OnCue migrated from `ktrowbridge/oncue` to `KevTrowbridge/oncue` |
 
 ---
 
@@ -73,28 +53,24 @@ The interface layer is now the single source of truth. Phase 1 (copy design syst
 
 | Asset | Status |
 |---|---|
-| `CLAUDE.md` | Complete — AI behavior rules |
-| `docs/FOUNDER_DECISIONS.md` | Complete — 24 sections, all approved decisions recorded |
-| `docs/architecture/mvp-ux-architecture.md` | Complete — v3.0, all 11 screens |
-| `docs/architecture/data-interfaces.ts` | **Complete — v2.0, 55 exports, all conflicts resolved** |
-| Application code | None |
-| Supabase project | None |
-| Design system | None — Phase 1 copies from event-flow-master |
+| `CLAUDE.md` | Complete |
+| `docs/FOUNDER_DECISIONS.md` | Complete — 24 sections |
+| `docs/architecture/mvp-ux-architecture.md` | Complete — v3.0 |
+| `docs/architecture/data-interfaces.ts` | Complete — v2.0, 55 exports |
+| `src/styles.css` | **Phase 1 complete** — brand token system |
+| `src/components/brand/Logo.tsx` | **Phase 1 complete** — locked brand mark |
+| `src/components/EditorialHeader.tsx` | **Phase 1 complete** — cream header |
+| `src/components/IntelligencePanel.tsx` | **Phase 1 complete** — pending import fix (see §5) |
+| `src/components/InfoTip.tsx` | **Phase 1 complete** — no pending issues |
+| App scaffold (`package.json`, router, HTML) | **None — Phase 2** |
+| Route files | **None — Phase 2** |
+| Supabase | **None — Phase 3** |
 
 ### `kevtrowbridge/event-flow-master` — Lovable prototype
 
-| Asset | Status |
-|---|---|
-| Design system | Production-quality — exact oklch brand tokens, Playfair Display + Inter |
-| Logo component | Production-quality — circular blush background, champagne-gold ring, gold OC monogram |
-| EditorialHeader | Production-quality — cream header band, dark workspace below |
-| IntelligencePanel | Production-quality — 4-part format (Why/Impact/Affected/Recommended Action) |
-| All 8 screens | Working — Dashboard, Setup/Questionnaire, Timeline, Day-Of, People, Status, Print & Share, Activity Detail |
-| Data models | Demo-only — hardcoded mock arrays, in-memory mutation, localStorage for questionnaire |
-| Intelligence engine | Demo-only — frontend heuristics labeled ⚠️ DEMO ONLY throughout |
-| Supabase | None |
+Unchanged. All 8 screens still working. Still the reference implementation.
 
-**Important constraint:** Do not force-push, rebase, or amend pushed commits in event-flow-master. The `AGENTS.md` file records this requirement (Lovable syncs from git history).
+**Constraint:** Do not force-push, rebase, or amend pushed commits. `AGENTS.md` in that repo records this requirement.
 
 ---
 
@@ -102,77 +78,113 @@ The interface layer is now the single source of truth. Phase 1 (copy design syst
 
 | Phase | Description | Status |
 |---|---|---|
-| **Phase 0** | Interface reconciliation — resolve all 7 conflicts in `data-interfaces.ts` | **Complete** |
-| **Phase 1** | Design system and brand components — copy `styles.css`, `Logo.tsx`, `EditorialHeader.tsx`, `IntelligencePanel.tsx`, brand-only components to oncue | **Ready to start** |
-| Phase 2 | Route structure and UI components — copy all routes and `src/components/ui/` to oncue; oncue becomes the working application repo |  |
-| Phase 3 | Supabase schema and real persistence — write schema, migrations, client wiring; remove mock arrays and localStorage |  |
-| Phase 4 | Real intelligence engine — real constraint solver replaces heuristic bodies in IntelligencePanel |  |
+| Phase 0 | Interface reconciliation | **Complete** — commit `a5fdf43` |
+| Phase 1 | Design system + brand components | **Complete** — commit `[this session]` |
+| **Phase 2** | App scaffold + routes + UI components | **Ready to start** |
+| Phase 3 | Supabase schema and real persistence | |
+| Phase 4 | Real intelligence engine | |
 
 ---
 
-## 5. Risks and Concerns
+## 5. Unresolved Dependencies (Phase 2 work)
 
-| Risk | Severity | Notes |
-|---|---|---|
-| EFM component updates pending | Medium | When Phase 2 migrates components, 5 fields need renaming (`duration` → `durationMinutes`, etc.) and 2 boolean props need expansion to enum (`isAnchor`, `isOptional`). Tracked by conflict comments in `data-interfaces.ts`. |
-| Continuing Lovable iteration after merge starts | Medium | If Lovable keeps generating into `event-flow-master` after Phase 2 migration begins, the two repos drift again. Decide the Lovable handoff point before Phase 2. |
-| Intelligence engine labeled DEMO ONLY | Low | The `oncue-data.ts` engine is well-structured but uses incorrect logic. Do not treat it as a validated constraint solver. |
-
----
-
-## Review Status
-
-Visible to founder: Yes — `docs/architecture/data-interfaces.ts` in the oncue repo on GitHub
-Founder review recommended: No — this was a technical documentation task; no founder decision required
-Next step: Phase 1 — copy design system and brand components from event-flow-master to oncue
+| Component | Pending issue |
+|---|---|
+| `IntelligencePanel.tsx` | Imports `StatusExplanation` from `@/lib/oncue-data` (path won't resolve without app scaffold). In Phase 2: update import to canonical `data-interfaces.ts`. **Also:** the EFM `StatusExplanation` shape is richer than the canonical definition — `affected` is `Array<{id, title, newTime, note}>` (not `string[]`) and `recommendation` is `{label, rationale}` (not `string`). Resolve the shape mismatch before wiring. |
+| `EditorialHeader.tsx` | Imports `Link` from `@tanstack/react-router`. Requires `@tanstack/react-router` in `package.json`. Resolved when Phase 2 creates the app scaffold using the same TanStack Start template. |
+| `HealthCard.tsx` | **Excluded from Phase 1.** Imports `TERMS` runtime constant from `oncue-data.ts`. Copy in Phase 2 after the real constraint engine data layer is established and `HealthCard` is refactored to use canonical types. |
 
 ---
 
-## 6. Exact Successor Prompt
+## 6. Visible and Testable?
 
-Use this prompt to begin Phase 1 in the next Claude Code session:
+**Not yet.** The components exist as source files in `src/`. There is no `package.json`, no bundler, no HTML entry point, and no router in oncue. The files cannot be run or previewed until Phase 2 creates the app scaffold.
+
+The founder **cannot** open a browser and see the design system yet.
+
+---
+
+## 7. Founder Review
+
+**Founder review is not required now.** Phase 1 is a source-file copy, not a product change. The design system is unchanged from what already works in `event-flow-master`.
+
+**Recommended founder action:** Confirm Phase 2 should proceed. Phase 2 involves creating a real app scaffold in oncue (package.json, router, entry point) and copying all route files from event-flow-master. At that point oncue will run as a real app and the founder will be able to open it in a browser.
+
+---
+
+## 8. Exact Successor Prompt
+
+Use this prompt to begin Phase 2:
 
 ```
 Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
 
-Task: Begin Phase 1 of the oncue/event-flow-master merge — copy the
-production-quality design system and brand components from event-flow-master
-into the oncue repo.
+Task: Phase 2 of the oncue/event-flow-master merge — create the app scaffold
+and copy all route and UI component files from event-flow-master to oncue.
 
 Read first:
-- docs/claude-handoff/current.md (operational state)
-- docs/FOUNDER_DECISIONS.md §6 (UI and brand visual direction)
-- docs/architecture/data-interfaces.ts (v2.0 — confirmed interface layer)
+- docs/claude-handoff/current.md
+- docs/FOUNDER_DECISIONS.md
+- docs/architecture/data-interfaces.ts (v2.0)
 
-Phase 1 scope (copy only — do not rewrite):
-1. src/styles.css — complete oklch design token system and global styles
-2. src/components/brand/Logo.tsx — SVG logo, 3 variants (blush/obsidian/alabaster)
-3. src/components/EditorialHeader.tsx — cream header band with Logo
-4. src/components/IntelligencePanel.tsx — 4-part explanation panel
-5. Any additional brand-only components with no data model dependencies
-   (HealthCard, InfoTip if present)
+Phase 2 scope:
+1. Create the minimal app scaffold in oncue so it can run:
+   - package.json (matching event-flow-master's dependencies — TanStack Start,
+     React 19, Tailwind 4, Radix UI, Vite 8)
+   - tsconfig.json
+   - vite.config.ts
+   - src/start.ts / src/server.ts / src/router.tsx (entry points)
+   - src/routes/__root.tsx (includes font loading)
 
-Do not copy:
-- Route files (Phase 2)
-- Data files (oncue-data.ts, questionnaire.ts) — these are being replaced by
-  the canonical data-interfaces.ts types and a future real constraint engine
-- Supabase client or auth files (Phase 3)
+2. Copy all route files from event-flow-master:
+   - src/routes/index.tsx (Dashboard)
+   - src/routes/events.$eventId.tsx (event shell)
+   - src/routes/events.$eventId.index.tsx
+   - src/routes/events.$eventId.setup.tsx
+   - src/routes/events.$eventId.timeline.tsx
+   - src/routes/events.$eventId.day-of.tsx
+   - src/routes/events.$eventId.people.tsx
+   - src/routes/events.$eventId.status.tsx
+   - src/routes/events.$eventId.print.tsx
+   - src/routes/events.$eventId.activities.$activityId.tsx
+   - src/routeTree.gen.ts
 
-After copying:
-- Verify the oncue repo has a working src/ structure to receive these files
-- If oncue has no src/ directory, create the minimal scaffold needed to hold
-  the design system files (package.json, tsconfig, etc.)
+3. Copy src/components/ui/ (all Radix/shadcn components)
+
+4. Copy src/lib/utils.ts (className utility only — NOT oncue-data.ts or questionnaire.ts)
+
+5. Copy src/hooks/use-mobile.tsx
+
+6. Copy src/lib/oncue-data.ts WITH a clear header comment:
+   ⚠️ DEMO ONLY — all data is hardcoded mock arrays and frontend heuristics.
+   This file is the placeholder intelligence engine. It will be replaced in
+   Phase 4 by a real constraint solver. Do not treat this as production logic.
+
+   Rationale: the routes depend on oncue-data.ts to render at all. We need
+   the app to run before we can replace the data layer.
+
+After Phase 2:
+- Run `bun install` and `bun dev` to verify the app starts
+- Confirm the founder can open the app in a browser
+- Note any TypeScript errors that need resolving (expected: IntelligencePanel
+  import path, status value casing mismatches)
 - Commit and push to KevTrowbridge/oncue
 - Report the commit hash
+
+Do not:
+- Copy questionnaire.ts (localStorage placeholder — replace in Phase 3)
+- Copy .lovable/ directory
+- Copy Lovable error reporting files (lovable-error-reporting.ts, error-capture.ts)
+- Force-push, rebase, or amend any commits in event-flow-master
 ```
 
 ---
 
-## 7. Git Status
+## 9. Git Status
 
 | Hash | Message | Location |
 |---|---|---|
-| `[this session — see below]` | Reconcile data interfaces v2.0 | KevTrowbridge/oncue ✓ |
+| `[this session]` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
+| `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
 | `6952018` | Add Lovable design phase founder decisions to decision log | KevTrowbridge/oncue ✓ |
 | `a9b0921` | Consolidate founder decisions log — make Markdown file canonical source of truth | KevTrowbridge/oncue ✓ |
-| `ab63fbf` | Add confirmed visual design direction to Phase 1 Lovable prompt | KevTrowbridge/oncue ✓ |

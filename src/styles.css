@@ -1,0 +1,168 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * OnCue Brand System
+ * Editorial blush + champagne gold (brand layer)
+ * Midnight obsidian + slate + alabaster (product/operational layer)
+ *
+ * Colors stored as oklch. All semantic tokens registered in @theme inline.
+ * Fonts: Playfair Display (headings) + Inter (UI/body) loaded via <link> in __root.
+ */
+
+@theme inline {
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  /* Brand tokens */
+  --color-blush: var(--blush);
+  --color-blush-soft: var(--blush-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-obsidian: var(--obsidian);
+  --color-slate-panel: var(--slate-panel);
+  --color-slate-elevated: var(--slate-elevated);
+  --color-alabaster: var(--alabaster);
+  --color-cream: var(--cream);
+
+  /* Status */
+  --color-on-track: var(--on-track);
+  --color-shifting: var(--shifting);
+  --color-anchor: var(--anchor);
+  --color-optional: var(--optional);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Brand */
+  --blush: oklch(0.872 0.039 25);          /* #E7C9C4 */
+  --blush-soft: oklch(0.94 0.018 25);
+  --gold: oklch(0.78 0.09 80);             /* #D4AF7A champagne */
+  --gold-soft: oklch(0.88 0.05 80);
+  --obsidian: oklch(0.16 0.012 260);       /* #0B0E14 */
+  --slate-panel: oklch(0.22 0.014 260);    /* #1C2026 */
+  --slate-elevated: oklch(0.27 0.014 260);
+  --alabaster: oklch(0.965 0.004 80);      /* #F5F3F0 */
+  --cream: oklch(0.965 0.012 60);
+
+  /* Operational palette — dark workspace by default */
+  --background: var(--obsidian);
+  --foreground: var(--alabaster);
+  --card: var(--slate-panel);
+  --card-foreground: var(--alabaster);
+  --popover: var(--slate-elevated);
+  --popover-foreground: var(--alabaster);
+  --primary: var(--gold);
+  --primary-foreground: var(--obsidian);
+  --secondary: var(--slate-elevated);
+  --secondary-foreground: var(--alabaster);
+  --muted: var(--slate-panel);
+  --muted-foreground: oklch(0.7 0.012 260);
+  --accent: var(--blush);
+  --accent-foreground: var(--obsidian);
+  --destructive: oklch(0.68 0.18 25);
+  --destructive-foreground: var(--alabaster);
+  --border: oklch(0.32 0.012 260);
+  --input: oklch(0.3 0.012 260);
+  --ring: var(--gold);
+
+  --on-track: oklch(0.78 0.13 150);
+  --shifting: oklch(0.78 0.13 35);
+  --anchor: oklch(0.78 0.14 25);
+  --optional: oklch(0.72 0.04 260);
+
+  --shadow-elegant: 0 10px 40px -12px oklch(0 0 0 / 0.5);
+  --shadow-gold: 0 8px 30px -8px oklch(0.78 0.09 80 / 0.35);
+  --gradient-gold: linear-gradient(135deg, oklch(0.82 0.09 80), oklch(0.72 0.11 70));
+  --gradient-cream: linear-gradient(180deg, var(--cream), oklch(0.94 0.018 50));
+}
+
+.dark {
+  /* mirror :root — we are dark by default */
+  --background: var(--obsidian);
+  --foreground: var(--alabaster);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .text-gold { color: var(--color-gold); }
+  .bg-gold { background-color: var(--color-gold); }
+  .bg-gradient-gold { background-image: var(--gradient-gold); }
+  .bg-cream { background-color: var(--color-cream); }
+  .bg-blush { background-color: var(--color-blush); }
+  .text-blush { color: var(--color-blush); }
+  .border-gold { border-color: var(--color-gold); }
+  .shadow-elegant { box-shadow: var(--shadow-elegant); }
+  .shadow-gold { box-shadow: var(--shadow-gold); }
+
+  .editorial-header {
+    background: var(--gradient-cream);
+    color: var(--obsidian);
+  }
+
+  .status-on-track { color: var(--color-on-track); }
+  .status-shifting { color: var(--color-shifting); }
+  .status-anchor { color: var(--color-anchor); }
+  .status-optional { color: var(--color-optional); }
+
+  .bar-on-track { background-color: oklch(0.35 0.02 260); border-color: oklch(0.45 0.02 260); }
+  .bar-anchor { background: var(--gradient-gold); }
+  .bar-shifting { background-color: oklch(0.7 0.13 25 / 0.65); }
+  .bar-optional { background-color: oklch(0.4 0.02 260); }
+
+  /* hairline gold divider */
+  .rule-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-gold) 20%, var(--color-gold) 80%, transparent);
+    opacity: 0.6;
+  }
+}
