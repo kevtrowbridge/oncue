@@ -1,21 +1,26 @@
 /**
  * OnCue MVP — TypeScript Data Interfaces
- * Version: 1.0 | June 21, 2026
+ * Version: 2.0 | June 22, 2026
  *
  * PURPOSE
  * These interfaces define every data shape used across all OnCue components.
- * They are written before the Lovable scaffold so Lovable builds components
- * with the correct prop types from the start — preventing the need for full
- * rewrites when Supabase is wired in Phase 4.
+ * Written before application code so components are built with the correct prop
+ * types from the start — preventing full rewrites when Supabase is wired in Phase 3.
  *
  * SOURCE
  * docs/architecture/mvp-ux-architecture.md (v3.0)
  * docs/FOUNDER_DECISIONS.md
  *
  * PHASE USAGE
- * Phase 1 (Lovable scaffold): use these with hardcoded static arrays
- * Phase 4+ (Claude Code): replace static arrays with Supabase hook results
- *   that return these same types — no component rewrites required
+ * Phase 1 (design system + brand components): no data model dependencies
+ * Phase 2 (Lovable code migration): components use these types with mock arrays
+ * Phase 3+ (Supabase): replace mock arrays with Supabase hook results that return
+ *   these same types — no component rewrites required
+ *
+ * CONFLICT RESOLUTION LOG (v1.0 → v2.0)
+ * Resolved 7 conflicts between data-interfaces.ts and event-flow-master types.
+ * See docs/claude-handoff/current.md §5 for the full conflict table.
+ * Each conflict is annotated at the affected field or type with a CONFLICT RESOLVED comment.
  *
  * RULES
  * - No framework imports (React, Supabase, etc.)
@@ -34,20 +39,49 @@
  * Lifecycle state of an event.
  * Used by: Dashboard event cards (status badge), event header, Timeline Editor toolbar
  * Spec: §4 Screen 1
+ *
+ * CONFLICT RESOLVED (v2.0): keep this 7-state PascalCase model.
+ * event-flow-master uses 4 lowercase states: "planning" | "on-track" | "draft" | "complete".
+ * Those 4 are a subset; this model adds ReviewNeeded, Ready, and Live distinctions
+ * needed for the full event lifecycle. event-flow-master components will be updated
+ * to this model when code migrates to oncue.
  */
 export type EventStatus =
   | "Draft"         // Created; questionnaire not yet started or shared
   | "InProgress"    // Actively being built; not yet shared with couple
   | "ReviewNeeded"  // Pending couple or collaborator proposals awaiting review
   | "Ready"         // All 7 Event Readiness Checklist items are complete
-  | "Live"          // Wedding day is today — Wedding Day Mode is active
+  | "Live"          // Wedding day is today — Day-Of Mode is active
   | "Completed"     // Event date has passed; still briefly writable
   | "Archived";     // Read-only; Planning Mode is locked
+
+/**
+ * Execution state of a single activity, set by the constraint engine at runtime.
+ * Used by: Timeline Editor (activity row indicators), Status screen, IntelligencePanel
+ * Spec: §7 Architecture and Timeline Intelligence — execution state
+ *
+ * ADDED v2.0: sourced from ActivityStatus in event-flow-master (oncue-data.ts).
+ * Converted from EFM's kebab-case: on-track → OnTrack, needs-adjustment → NeedsAdjustment,
+ * at-risk → AtRisk. All other values match with first letter capitalized.
+ */
+export type ActivityStatus =
+  | "OnTrack"          // No issues; progressing as planned
+  | "NeedsAdjustment"  // Minor deviation; adjustment recommended but not urgent
+  | "Delayed"          // This activity has started late
+  | "Recalculating"    // Constraint engine is actively recalculating downstream times
+  | "Conflict"         // Hard conflict: two activities overlap or anchor is threatened
+  | "AtRisk"           // On track now but vulnerable to a likely upcoming conflict
+  | "Complete";        // Activity has ended
 
 /**
  * How an activity behaves when the constraint engine recalculates times.
  * Used by: Activity Detail Panel, Timeline Editor (anchor indicator), constraint engine
  * Spec: §5 Interaction Patterns — Anchor Types
+ *
+ * CONFLICT RESOLVED (v2.0): keep this 4-value enum (not `isAnchor: boolean`).
+ * event-flow-master uses `isAnchor: boolean`.
+ * Derived boolean: isAnchor = anchorType === "Locked" || anchorType === "Preferred"
+ * event-flow-master components will be updated when code migrates.
  */
 export type AnchorType =
   | "Locked"               // Never moves under any condition (e.g. ceremony)
@@ -59,6 +93,11 @@ export type AnchorType =
  * Importance of an activity for scheduling decisions and conflict resolution.
  * Used by: Activity Detail Panel, constraint warning evaluation
  * Spec: §4 Screen 5 — Activity Detail
+ *
+ * CONFLICT RESOLVED (v2.0): keep this 5-value enum (not `isOptional: boolean`).
+ * event-flow-master uses `isOptional: boolean`.
+ * Derived boolean: isOptional = priority === "Optional" || priority === "Buffer"
+ * event-flow-master components will be updated when code migrates.
  */
 export type Priority =
   | "Critical"  // Must not be skipped or compressed (ceremony, first look)
@@ -85,9 +124,9 @@ export type VisibilityTarget =
   | "VendorCustom";
 
 /**
- * Lifecycle of a vendor's engagement with their shared link.
+ * Lifecycle of a participant's engagement with their shared link.
  * Used by: Vendor Management screen, Dashboard event card vendor summary chip
- * Spec: §4 Screen 7 — Vendor status definitions; §1 Journey 3
+ * Spec: §4 Screen 7; §15 Participant status tracking
  */
 export type VendorStatus = "Invited" | "Viewed" | "Confirmed";
 
@@ -163,6 +202,50 @@ export type UserEventRoleType =
   | "Couple"
   | "Vendor";
 
+/**
+ * Which side of the couple a person belongs to, for group photo sequencing.
+ * Used by: Person, PhotoGroup
+ * Spec: §11 Family and Photo Group Optimizer — default portrait sequence
+ *
+ * ADDED v2.0: adopted from QPerson model in event-flow-master (questionnaire.ts).
+ * Renamed from "bride-side" / "groom-side" to SideA / SideB to remain
+ * compatible with the generic Event architecture (not wedding-specific).
+ */
+export type PersonSide = "SideA" | "SideB" | "Shared";
+
+/**
+ * The family grouping a person belongs to in the portrait sequence.
+ * Drives the default 11-step portrait sequence in the Group Photo Optimizer.
+ * Used by: Person, PhotoGroup, Group Photo Optimizer sequencing logic
+ * Spec: §11 Family and Photo Group Optimizer — default 11-step portrait sequence
+ *
+ * ADDED v2.0: adopted from PersonGroup in event-flow-master (questionnaire.ts).
+ */
+export type PersonGroup =
+  | "Extended"      // Extended family — outermost ring; released last
+  | "Grandparents"  // Grandparents — high priority for early release
+  | "Siblings"      // Siblings
+  | "Immediate"     // Immediate family (parents + siblings combined)
+  | "Parents"       // Parents only
+  | "WeddingParty"  // Member of the wedding party
+  | "VIP"           // Named VIP (special request; no family classification)
+  | "Custom";       // Custom grouping not covered by above categories
+
+/**
+ * The family relationship type between two people.
+ * Supports blended, step, divorced, and remarried family structures.
+ * Used by: Person.relationshipKind
+ * Spec: §11 Family and Photo Group Optimizer — blended family support
+ *
+ * ADDED v2.0: adopted from QRelationship model in event-flow-master (questionnaire.ts).
+ */
+export type RelationshipKind =
+  | "Married"
+  | "Divorced"
+  | "Remarried"
+  | "Step"
+  | "Single";
+
 
 // =============================================================================
 // LOCATIONS
@@ -187,8 +270,24 @@ export interface EventLocation {
 // =============================================================================
 
 /**
+ * Per-activity timing buffers set by the constraint engine.
+ * Separates intentional padding from the activity's core duration so the engine
+ * can compress buffers before compressing the activity itself.
+ * Used by: Activity.buffers, constraint engine recalculation, Timeline Editor
+ * Spec: §7 Architecture and Timeline Intelligence — constraint modeling
+ *
+ * ADDED v2.0: sourced from RelationalBuffer in event-flow-master (oncue-data.ts).
+ */
+export interface RelationalBuffer {
+  before: number;        // Setup/prep time before this activity (minutes)
+  after: number;         // Wrap/clear time after this activity (minutes)
+  travelBefore: number;  // Travel time arriving at this activity's location (minutes)
+  travelAfter: number;   // Travel time leaving this activity's location (minutes)
+}
+
+/**
  * A single scheduled item on the wedding day timeline.
- * Used by: Timeline Editor (list rows), Activity Detail Panel, Wedding Day Mode,
+ * Used by: Timeline Editor (list rows), Activity Detail Panel, Day-Of Mode,
  *          Group Photo Optimizer (when exported to timeline), role-filtered views
  * Spec: §4 Screens 4, 5, 9
  */
@@ -197,18 +296,38 @@ export interface Activity {
   eventId: string;
   sectionId: string;
   title: string;
+  // CONFLICT RESOLVED (v2.0): keep durationMinutes (not `duration`).
+  // event-flow-master uses `duration: number` — rename during data migration.
   durationMinutes: number;
+  // CONFLICT RESOLVED (v2.0): keep minimumDurationMinutes (not `minDuration`).
+  // event-flow-master uses `minDuration: number` — rename during data migration.
   minimumDurationMinutes: number;
+  // CONFLICT RESOLVED (v2.0): keep "HH:MM" string (not ISO datetime).
+  // ISO datetimes belong in the Supabase persistence layer, not in UI prop types.
+  // event-flow-master uses ISO strings — update components during Supabase wiring phase.
   startTime: string | null;           // "HH:MM"; null until constraint engine calculates
-  calculatedEndTime: string | null;   // "HH:MM"; derived from startTime + duration
+  calculatedEndTime: string | null;   // "HH:MM"; derived from startTime + durationMinutes
+  // CONFLICT RESOLVED (v2.0): keep 4-value enum (not `isAnchor: boolean`).
+  // Derived boolean: isAnchor = anchorType === "Locked" || anchorType === "Preferred"
+  // event-flow-master components will be updated when code migrates.
   anchorType: AnchorType;
+  // CONFLICT RESOLVED (v2.0): keep 5-value enum (not `isOptional: boolean`).
+  // Derived boolean: isOptional = priority === "Optional" || priority === "Buffer"
+  // event-flow-master components will be updated when code migrates.
   priority: Priority;
+  // CONFLICT RESOLVED (v2.0): keep locationId reference (not inline string).
+  // event-flow-master uses `location: string` + `locationInfo` object for display convenience.
+  // The canonical model uses a foreign key to EventLocation for constraint engine use.
+  // The EFM inline location is a UI-only display convenience, not the source of truth.
   locationId: string | null;          // null = inherit location from parent section
   locationInherited: boolean;         // true when location comes from section default
   visibleTo: VisibilityTarget[];
-  requiredPeople: string[];           // Names or roles who must be present
+  requiredPeople: string[];           // Person IDs who must be present
   weatherSensitive: boolean;
   isOutdoor: boolean;
+  // CONFLICT RESOLVED (v2.0): keep two-field separation (not a single `notes: string`).
+  // internalNotes is owner-only. vendorFacingNotes is role-gated.
+  // Collapsing to one field loses role-based access control enforcement.
   internalNotes: string;              // Owner-only; never visible to couple or vendors
   vendorFacingNotes: string;          // Visible to vendors who can see this activity
   setupChecklistItems: string[];
@@ -220,6 +339,10 @@ export interface Activity {
   hasConstraintWarning: boolean;      // Drives inline warning indicator in Timeline Editor
   constraintWarningMessage: string | null;
   sortOrder: number;
+  // ADDED v2.0: constraint engine execution state; null in Planning Mode
+  status: ActivityStatus | null;
+  // ADDED v2.0: timing buffers from constraint engine; null until engine runs
+  buffers: RelationalBuffer | null;
 }
 
 /**
@@ -251,13 +374,13 @@ export interface ConstraintWarning {
     | "SunsetConflict"
     | "RequiredPersonMissing"
     | "MinimumDurationViolated";
-  message: string;              // "Ceremony is locked at 4:00pm. Extending..."
+  message: string;               // "Ceremony is locked at 4:00pm. Extending..."
   suggestionMessage: string | null; // Optional recovery suggestion shown inline
 }
 
 /**
- * One recovery option presented after a delay is entered in Wedding Day Mode.
- * Used by: Wedding Day Mode delay panel (step 3 — recovery options list)
+ * One recovery option presented after a delay is entered in Day-Of Mode.
+ * Used by: Day-Of Mode delay panel (step 3 — recovery options list)
  * Spec: §2 Execution Mode Delay Adjustment Flow
  */
 export interface RecoveryOption {
@@ -271,7 +394,7 @@ export interface RecoveryOption {
 /**
  * A person suggested for notification after a delay adjustment.
  * Owner explicitly selects who to notify before anything is sent.
- * Used by: Wedding Day Mode delay panel (step 4 — notification selection)
+ * Used by: Day-Of Mode delay panel (step 4 — notification selection)
  * Spec: §2 Execution Mode — notification step; system never notifies automatically
  */
 export interface NotificationCandidate {
@@ -280,6 +403,27 @@ export interface NotificationCandidate {
   role: string;            // "DJ", "Planner", "Florist"
   contactMethod: string;   // Phone number or email (display only)
   isSelected: boolean;     // Owner can add or remove before confirming
+}
+
+/**
+ * The structured output the constraint engine produces for a single activity's status.
+ * This is the approved 4-part explanation format: Why / Impact / Affected / Recommended Action.
+ * Used by: IntelligencePanel, Status screen, Activity Detail Panel (execution state)
+ * Spec: §7 Architecture and Timeline Intelligence — 4-part explanation format
+ *
+ * ADDED v2.0: sourced from StatusExplanation in event-flow-master (oncue-data.ts).
+ * The event-flow-master version uses frontend heuristics labeled ⚠️ DEMO ONLY.
+ * This interface defines what the real constraint solver must output in Phase 4.
+ */
+export interface StatusExplanation {
+  status: ActivityStatus;
+  statusLabel: string;              // Human-readable label for the status badge
+  why: string;                      // Why is this status flagged?
+  impact: string;                   // What happens if not addressed?
+  affectedActivityIds: string[];    // Which other activities are at risk?
+  recommendedAction: string;        // What should the owner do?
+  estimatedDelayMinutes: number | null; // null when status is OnTrack or Complete
+  pushesFixedActivity: boolean;     // true when this delay would push a Locked/Preferred activity
 }
 
 
@@ -314,15 +458,15 @@ export interface Event {
 }
 
 /**
- * Compact vendor status summary shown on the Dashboard event card.
+ * Compact participant status summary shown on the Dashboard event card.
  * Used by: Dashboard event card, event header vendor chip
- * Spec: §4 Screen 1 — information hierarchy item 2
+ * Spec: §4 Screen 1 — information hierarchy item 2; §15 Participant status tracking
  */
 export interface VendorSummary {
   totalVendors: number;
   confirmedCount: number;
   viewedCount: number;
-  invitedCount: number;   // Generated but not yet opened
+  invitedCount: number;   // Link sent but not yet opened
 }
 
 /**
@@ -330,7 +474,7 @@ export interface VendorSummary {
  * All 7 must be true before an event should be considered ready for the wedding day.
  * Used by: Dashboard event card (near event date), Planning Mode sidebar,
  *          PDF Export screen (item 3 gating)
- * Spec: §2 Planning Mode — Event Readiness Checklist; §9 item B
+ * Spec: §2 Planning Mode — Event Readiness Checklist; §17 checklist items
  */
 export interface EventReadinessChecklist {
   questionnaireComplete: boolean;    // All required questionnaire sections filled in
@@ -338,8 +482,25 @@ export interface EventReadinessChecklist {
   pdfBackupDownloaded: boolean;      // At least one compact or full PDF downloaded
   noCriticalWarnings: boolean;       // No unresolved anchor threats or chain violations
   coupleProposalsResolved: boolean;  // No pending couple proposals
-  vendorLinkShared: boolean;         // At least one vendor has been sent their link
+  vendorLinkShared: boolean;         // At least one participant has been sent their link
   emergencyContactsEntered: boolean; // At least one emergency contact in questionnaire
+}
+
+/**
+ * Event-level health summary produced by the constraint engine.
+ * Used by: Dashboard event card (health indicator), Status screen header, IntelligencePanel
+ * Spec: §7 Architecture and Timeline Intelligence — execution intelligence
+ *
+ * ADDED v2.0: sourced from HealthScore in event-flow-master (oncue-data.ts).
+ * The event-flow-master version uses frontend heuristics labeled ⚠️ DEMO ONLY.
+ * This interface defines what the real constraint solver must output in Phase 4.
+ */
+export interface HealthScore {
+  rating: "Good" | "Watch" | "Critical"; // Overall health rating
+  criticalCompleted: number;              // Fixed Timing activities already completed
+  criticalTotal: number;                  // Total Fixed Timing activities in the timeline
+  attention: string[];                    // Plain-language items that need owner attention
+  conflicts: string[];                    // Plain-language descriptions of hard conflicts
 }
 
 
@@ -382,18 +543,22 @@ export interface QuestionnaireLocations {
 /**
  * A single participant in family or wedding party group photos.
  * Sections 3 & 4 share this type; isWeddingParty distinguishes them.
- * Scope is intentionally broad: parents, step-parents, grandparents, siblings,
- * children, extended family, chosen family, VIPs — anyone in a group photo.
  * Used by: Questionnaire sections 3 & 4, Group Photo Optimizer
  * Spec: §4 Screen 3 — sections 3 & 4; §4 Screen 6 note
+ *
+ * @deprecated Superseded by Person (see PEOPLE section below).
+ * Person adds PersonSide, PersonGroup, and RelationshipKind from the QPerson
+ * model in event-flow-master (questionnaire.ts), enabling the full missing-person
+ * flow and 11-step portrait sequence. GroupParticipant is retained for backwards
+ * compatibility with EventQuestionnaire until the data model migrates to Person[].
  */
 export interface GroupParticipant {
   id: string;
   eventId: string;
   name: string;
-  relationship: string;          // "Grandmother (Bride's side)", "Best Man", "MOH"
-  notes: string | null;          // Mobility needs, arriving late, seat preference, etc.
-  isWeddingParty: boolean;       // true = also in wedding party (Section 4)
+  relationship: string;            // "Grandmother (Bride's side)", "Best Man", "MOH"
+  notes: string | null;            // Mobility needs, arriving late, seat preference, etc.
+  isWeddingParty: boolean;         // true = also in wedding party (Section 4)
   weddingPartyRole: string | null; // "MOH", "Groomsman", "Flower Girl", "Officiant"
   sortOrder: number;
 }
@@ -441,9 +606,9 @@ export interface QuestionnairePriorities {
 /**
  * Section 8 — Emergency contacts for the wedding day.
  * Required for Event Readiness Checklist item 7.
- * Cached for offline access when Wedding Day Mode is entered.
- * Used by: Questionnaire screen section 8, Wedding Day Mode emergency panel
- * Spec: §4 Screen 3 — section 8; §4 Screen 9 — emergency contacts panel; §9 item G
+ * Cached for offline access when Day-Of Mode is entered.
+ * Used by: Questionnaire screen section 8, Day-Of Mode emergency panel
+ * Spec: §4 Screen 3 — section 8; §4 Screen 9 — emergency contacts panel; §19
  */
 export interface EmergencyContact {
   id: string;
@@ -458,12 +623,15 @@ export interface EmergencyContact {
  * The full questionnaire for an event, assembled from all 8 sections.
  * Used by: Questionnaire screen (master prop), completion status indicators
  * Spec: §4 Screen 3
+ *
+ * NOTE: groupParticipants will migrate to Person[] when the People data model
+ * is wired to Supabase. GroupParticipant is the current interim type.
  */
 export interface EventQuestionnaire {
   eventId: string;
   coreDetails: QuestionnaireCoreDetails;
   locations: QuestionnaireLocations;
-  groupParticipants: GroupParticipant[];  // Sections 3 & 4 combined
+  groupParticipants: GroupParticipant[];  // Sections 3 & 4 combined; migrates to Person[]
   vendors: QuestionnaireVendor[];
   preferences: QuestionnairePreferences;
   priorities: QuestionnairePriorities;
@@ -481,6 +649,37 @@ export interface EventQuestionnaire {
 
 
 // =============================================================================
+// PEOPLE
+// =============================================================================
+
+/**
+ * A person associated with an event — family member, wedding party member, VIP,
+ * or anyone else who appears in group photos or the event roster.
+ * The People screen is the source of truth for the roster; Photo Groups are derived from it.
+ * Used by: People screen, Group Photo Optimizer, PhotoGroup, MissingPersonImpact
+ * Spec: §10 People and Photo Groups; §11 Family and Photo Group Optimizer
+ *
+ * ADDED v2.0: adopted from QPerson in event-flow-master (questionnaire.ts).
+ * Supersedes GroupParticipant — adds side, group classification, and relationship structure.
+ * People and Photo Groups are distinct concepts (§10): Person is the roster;
+ * PhotoGroup is derived from Person[].
+ */
+export interface Person {
+  id: string;
+  eventId: string;
+  name: string;
+  side: PersonSide;                   // Which side of the couple this person belongs to
+  group: PersonGroup;                 // Family classification for portrait sequencing
+  relationshipKind: RelationshipKind | null; // null when not applicable (e.g. VIP, custom)
+  relationshipLabel: string;          // "Grandmother (Bride's side)", "Best Man"
+  notes: string | null;               // Mobility needs, arriving late, seat preference, etc.
+  isWeddingParty: boolean;            // true = also in wedding party
+  weddingPartyRole: string | null;    // "MOH", "Groomsman", "Flower Girl", "Officiant"
+  sortOrder: number;
+}
+
+
+// =============================================================================
 // GROUP PHOTO OPTIMIZER
 // =============================================================================
 
@@ -489,15 +688,19 @@ export interface EventQuestionnaire {
  * Auto-generated from questionnaire participants; owner adjusts before confirming.
  * Used by: Group Photo Optimizer screen (group list), timeline export
  * Spec: §4 Screen 6
+ *
+ * NOTE: PhotoGroup (below) is the richer v2.0 model sourced from event-flow-master.
+ * GroupPhotoGroup is retained for backwards compatibility with GroupPhotoOptimizerSummary
+ * until the Supabase schema migration aligns with the PhotoGroup model.
  */
 export interface GroupPhotoGroup {
   id: string;
   eventId: string;
   label: string;                       // "Couple + Both Sets of Parents"
-  participantIds: string[];            // References GroupParticipant.id
+  participantIds: string[];            // Person.id references (was GroupParticipant.id)
   estimatedDurationMinutes: number;
   status: GroupPhotoStatus;
-  appearsInMultipleGroupsParticipants: string[]; // Participant IDs that appear in 2+ groups
+  appearsInMultipleGroupsParticipants: string[]; // Person IDs appearing in 2+ groups
   notes: string | null;
   sortOrder: number;
 }
@@ -515,6 +718,63 @@ export interface GroupPhotoOptimizerSummary {
   crossGroupParticipantCount: number; // People appearing in 2+ groups
 }
 
+/**
+ * A generated portrait group derived from the People roster.
+ * Richer than GroupPhotoGroup — adds kind, deferred state, and missing-person tracking.
+ * Implements the approved 11-step default portrait sequence.
+ * Used by: Group Photo Optimizer (execution state), Day-Of Mode portrait tracking,
+ *          MissingPersonImpact options
+ * Spec: §11 Family and Photo Group Optimizer — 11-step default sequence
+ *
+ * ADDED v2.0: sourced from PhotoGroup in event-flow-master (oncue-data.ts).
+ * Renamed kind values from "bride-side" / "groom-side" to SideA / SideB for
+ * generic Event architecture compatibility. Replaces GroupPhotoGroup as the
+ * target model for Phase 3 Supabase migration.
+ */
+export interface PhotoGroup {
+  id: string;
+  eventId: string;
+  label: string;                     // "Couple + Bride's Parents"
+  kind: "SideA" | "SideB" | "Shared" | "Custom";
+  personIds: string[];               // Person.id references
+  estimatedDurationMinutes: number;
+  isDeferred: boolean;               // true = group was skipped and moved to end of session
+  missingPersonIds: string[];        // Person.id references for people not yet present
+  order: number;                     // Position in the portrait sequence (1-based)
+  notes: string | null;
+}
+
+/**
+ * One option for handling a missing person during the portrait session.
+ * Presented to the owner as a choice — never applied automatically.
+ * Used by: MissingPersonImpact.options, Day-Of Mode missing-person panel
+ * Spec: §11 Missing-person flow
+ *
+ * ADDED v2.0: sourced from the missing-person options model in event-flow-master (oncue-data.ts).
+ */
+export interface MissingPersonOption {
+  id: string;
+  label: string;                    // "Proceed without them"
+  description: string;              // Full plain-language explanation
+  reason: string;                   // Why this option is available given the current situation
+  recommended: boolean;             // Constraint engine's top recommendation
+  affectedGroupIds: string[];       // PhotoGroup IDs affected by this choice
+  estimatedDelayMinutes: number;    // 0 if proceeding without causes no delay
+}
+
+/**
+ * The full impact model for a single missing person, including all available options.
+ * Used by: Day-Of Mode missing-person panel, Group Photo Optimizer (execution state)
+ * Spec: §11 Missing-person flow
+ *
+ * ADDED v2.0: sourced from MissingPersonImpact in event-flow-master (oncue-data.ts).
+ */
+export interface MissingPersonImpact {
+  personId: string;                 // Person.id of the missing individual
+  personName: string;               // Display name
+  options: MissingPersonOption[];
+}
+
 
 // =============================================================================
 // VENDORS
@@ -524,7 +784,7 @@ export interface GroupPhotoOptimizerSummary {
  * A vendor role configured for an event with its visibility scope.
  * One VendorRole per role type (DJ, Videographer, etc.) per event.
  * Used by: Vendor Management screen (role list), link generation, role-filtered view
- * Spec: §4 Screen 7
+ * Spec: §4 Screen 7; §15 Participant Model
  */
 export interface VendorRole {
   id: string;
@@ -538,10 +798,10 @@ export interface VendorRole {
 
 /**
  * A shareable link generated for a specific vendor role.
- * No OnCue account required to access; status tracks vendor engagement.
+ * No OnCue account required to access; status tracks participant engagement.
  * Used by: Vendor Management screen (status column), Dashboard vendor summary,
- *          Vendor Link Landing (token lookup), vendor status tracking
- * Spec: §4 Screen 7 — Vendor status definitions; §1 Journey 3; §9 item F
+ *          Vendor Link Landing (token lookup), participant status tracking
+ * Spec: §4 Screen 7; §1 Journey 3; §15 Participant status tracking; §16 non-user access
  */
 export interface VendorLink {
   id: string;
@@ -563,7 +823,7 @@ export interface VendorLink {
  * A change submitted by the couple that has NOT yet been applied.
  * Must be explicitly approved by Owner or CoOwner before taking effect.
  * Used by: Change Review screen — Workflow A (couple proposals section)
- * Spec: §4 Screen 8 — Workflow A; §9 item A (couple changes always require approval)
+ * Spec: §4 Screen 8 — Workflow A; §14 — couple changes always require approval
  */
 export interface ChangeProposal {
   id: string;
@@ -590,7 +850,7 @@ export interface ChangeProposal {
  * Owner/CoOwner edits (isReviewRequired = false) appear in the full change log.
  * Used by: Change Review — Workflow B (Review Required log), change log view,
  *          "What's Changed Since Last Visit" banner
- * Spec: §4 Screen 8 — Workflow B; §5 Version History — Change log; §9 item A
+ * Spec: §4 Screen 8 — Workflow B; §5 Version History — Change log; §14
  */
 export interface ChangeLogEntry {
   id: string;
@@ -616,7 +876,7 @@ export interface ChangeLogEntry {
  * An automatic point-in-time snapshot of the full timeline state.
  * Created at key milestones; any snapshot can be restored by the owner.
  * Used by: Planning Mode (snapshot list), version comparison, restore flow
- * Spec: §5 Version History — Automatic snapshots, Full timeline restore
+ * Spec: §5 Version History — Automatic snapshots, Full timeline restore; §18
  */
 export interface TimelineSnapshot {
   id: string;
@@ -631,7 +891,7 @@ export interface TimelineSnapshot {
 /**
  * A version comparison between two snapshots.
  * Used by: Planning Mode — version comparison panel
- * Spec: §5 Version History — Change log and version comparison summary
+ * Spec: §5 Version History — Change log and version comparison summary; §18
  */
 export interface SnapshotComparison {
   fromSnapshotId: string;
@@ -653,7 +913,7 @@ export interface SnapshotComparison {
  * Plain-language summary of changes since a user's last visit.
  * Shown as a dismissable banner to Owner, Planner, and Couple on return.
  * Used by: Dashboard event card, per-event tab bar, Couple view welcome section
- * Spec: §3 Navigation — "What's Changed Since Last Visit"; §9 item E
+ * Spec: §3 Navigation — "What's Changed Since Last Visit"; §14
  */
 export interface ChangeSummary {
   eventId: string;
@@ -668,7 +928,7 @@ export interface ChangeSummary {
 /**
  * Record of a PDF export download.
  * Used by: PDF Export screen (last download date), Event Readiness Checklist item 3
- * Spec: §4 Screen 10 — PDF is a required emergency backup; §9 item I
+ * Spec: §4 Screen 10 — PDF is a required emergency backup; §20 PDF Backup
  */
 export interface PdfExportRecord {
   id: string;
@@ -688,7 +948,7 @@ export interface PdfExportRecord {
  * A user's role assignment within a specific event.
  * One record per person per event. Planners have a plannerRole sub-type.
  * Used by: Role-filtered views, Change Review, permissions enforcement
- * Spec: §6 Role-Filtered Views
+ * Spec: §6 Role-Filtered Views; §14 Collaboration and Change Control
  */
 export interface UserEventRole {
   id: string;
@@ -706,26 +966,26 @@ export interface UserEventRole {
 /**
  * The authenticated user's global account profile.
  * Used by: Dashboard (account header), Account/Settings screen
- * Spec: §3 Global Navigation
+ * Spec: §3 Global Navigation; §21 Business and Monetization — pricing tiers
  */
 export interface UserProfile {
   id: string;
   displayName: string;
   email: string;
-  plan: "Free" | "Pro";
-  eventsUsed: number;       // Free tier: max 3 lifetime events
-  eventsLimit: number;      // 3 on Free; higher on Pro
+  plan: "Free" | "Professional" | "Studio"; // Three approved tiers (§21)
+  eventsUsed: number;       // Free tier: max 3 lifetime self-created events
+  eventsLimit: number;      // 3 on Free; higher on Professional / Studio
   createdAt: string;
 }
 
 
 // =============================================================================
-// WEDDING DAY MODE
+// DAY-OF MODE
 // =============================================================================
 
 /**
- * The current activity displayed in the NOW card on Wedding Day Mode.
- * Used by: Wedding Day Mode main screen — NOW card
+ * The current activity displayed in the NOW card on Day-Of Mode.
+ * Used by: Day-Of Mode main screen — NOW card
  * Spec: §4 Screen 9 — information hierarchy item 1
  */
 export interface WeddingDayCurrentActivity {
@@ -739,7 +999,7 @@ export interface WeddingDayCurrentActivity {
 
 /**
  * State passed into the delay adjustment panel after "Running Late" is tapped.
- * Used by: Wedding Day Mode delay panel (all 5 steps)
+ * Used by: Day-Of Mode delay panel (all 5 steps)
  * Spec: §2 Execution Mode — Delay adjustment flow
  */
 export interface DelayAdjustmentState {
@@ -756,10 +1016,10 @@ export interface DelayAdjustmentState {
 }
 
 /**
- * The complete state passed into the Wedding Day Mode screen.
+ * The complete state passed into the Day-Of Mode screen.
  * Emergency contacts are loaded upfront for offline access.
- * Used by: Wedding Day Mode screen
- * Spec: §4 Screen 9; §9 item G (emergency contacts cached offline)
+ * Used by: Day-Of Mode screen
+ * Spec: §4 Screen 9; §19 Emergency Contacts (must be accessible offline)
  */
 export interface WeddingDayModeState {
   event: Event;
