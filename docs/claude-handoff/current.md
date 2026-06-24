@@ -1,57 +1,89 @@
 # Claude Handoff — Current
 
 **Last updated:** June 23, 2026
-**Current phase:** Phase 2 complete — data-interfaces.ts updated to v3.0 for Event Setup architecture
+**Current phase:** Phase 2.6 complete — UI refinement pass across all 7 screens
 
 ---
 
 ## 1. Thirty-Second Summary
 
-Phase 2 is done and the data model has been updated. OnCue now has:
-- A working app scaffold (all 8 screens compilable, zero TypeScript errors, `npm run dev` starts at localhost:3000)
-- `data-interfaces.ts` v3.0 — extended with 10 additions from the Event Setup architecture review
-
-The data model is now complete enough to author the Phase 3 Supabase schema directly against these types without structural rewrites.
+Phase 2.6 is done. All 7 screens have been refined based on the founder's browser review. Zero TypeScript errors. App compiles and runs.
 
 ---
 
 ## 2. What Changed This Session
 
-### data-interfaces.ts — Updated to v3.0
+### questionnaire.ts — Updated to v3.0
 
-**New enum types added:**
+New types: `QCoverage`, `QPortrait`, `OvertimePolicy`, `PortraitLightingPreference`, `PortraitLightingPriority`
 
-| Type | Purpose |
-|---|---|
-| `PortraitLightingPreference` | 5-mode enum: Flexible / WarmLightBeforeSunset / SunsetGlow / ColorfulSkyAfterSunset / BlueHour |
-| `PortraitLightingPriority` | NiceToHave / Important / Critical — governs how engine weights the lighting constraint |
-| `OveragePolicy` | None / ApprovalRequired / PreApproved — governs coverage overage handling |
+New optional fields on:
+- `QPerson`: `departureConstraintTime`, `arrivalUncertain`, `isVip`, `mobilityConcern`
+- `QVendor`: `departureTime`, `setupDurationMinutes`
+- `QRelationship`: `personAName`, `personBName`, `cannotBeInSamePhoto`, `mustBePhotographedTogether`
 
-**New entities added:**
+New constants: `PORTRAIT_LIGHTING_OPTIONS`
 
-| Entity | Purpose |
-|---|---|
-| `ServiceCoverage` | Coverage window for any service role; billable minutes, hard departure, overage policy. NOT invoicing. |
-| `CoverageImpact` | Computed output: how the current timeline maps against contracted coverage. Surfaced as a warning. |
-| `PersonRelationship` | Connection between two Person records; `cannotBeInSamePhoto`, `mustBePhotographedTogether`. Blended family logic. |
+`Questionnaire` interface extended with `coverage: QCoverage` and `portrait: QPortrait` fields.
 
-**Fields added to existing entities:**
+---
 
-| Entity | New Fields |
-|---|---|
-| `Person` | `departureConstraintTime`, `arrivalUncertain`, `isVip`, `mobilityConcern` |
-| `QuestionnairePreferences` | `portraitLightingPreference`, `portraitLightingPriority`, `totalPortraitMinutesDesired` |
-| `QuestionnaireVendor` | `departureTime`, `setupDurationMinutes` |
+### Screen-by-screen changes
 
-**Separation rules codified in file header:**
-- People: portrait/group photo roster
-- Vendors: service providers, contact details, role visibility
-- Participants: OnCue users/invitees (UserEventRole)
-- These three concepts must not be collapsed.
+**Timeline (`events.$eventId.timeline.tsx`)**
+- Added amber attention banner ABOVE the Gantt when any issues exist — always above the fold
+- Banner shows issue count + pill buttons for top 3 issues (click to select)
+- Banner has "see all issues below" scroll link to the Intelligence Strip
+- HealthCard now receives `onSelectActivity` — clicking an issue card in the right rail selects that activity
+- Intelligence Strip anchored with `id="issues-strip"` and scroll ref
 
-### Phase 2 App Scaffold — Unchanged (still complete)
+**HealthCard (`src/components/HealthCard.tsx`)**
+- Fixed layout: removed `md:grid-cols-3` (caused text overflow in 380px rail)
+- Now uses `space-y-5` stacked vertical layout — Issues / Protected / Recommended
+- Issues section shown first (highest priority)
+- Each issue item is now a clickable button (calls `onSelectActivity` prop)
+- Shows "+N more — scroll to Issues below" hint when issues exceed 4
+- New optional prop: `onSelectActivity?: (id: string) => void`
 
-All 8 screens from the Lovable prototype exist as source code in `KevTrowbridge/oncue`. Zero TypeScript errors. The data layer is demo-only mock data. Phase 3 replaces it with Supabase.
+**Activity Detail (`events.$eventId.activities.$activityId.tsx`)**
+- `form.dependencies` changed from comma-joined string to `string[]`
+- `save()` now passes the array directly (no more `.split(",").map().filter()`)
+- Replaced the "Dependencies (comma-separated activity IDs)" text input with `DependencyPicker` component
+- `DependencyPicker`: scrollable checklist of all other activities, shows title + start time, shows selected names summary below
+
+**People (`events.$eventId.people.tsx`)**
+- Page renamed from "Photo Groups" to "People & Vendors"
+- Three-tab selector: Photo Groups · People Roster · Vendors
+- **People Roster tab**: table view of 12 demo people with name, role, side chip, group, departure time, VIP badge
+- **Vendors tab**: table view of 6 demo vendors with role chip, name, arrival/departure times, setup duration
+- **Photo Groups tab**: all existing optimizer content (reorder, defer, merge, split, missing person) — unchanged
+- Demo data labeled ⚠️ DEMO ONLY
+
+**Status (`events.$eventId.status.tsx`)**
+- All 4 stat cards are now clickable buttons with `onClick={() => scrollTo(ref)}`
+- "Critical complete" renamed to "Key Milestones Done"
+- Stat cards highlight in amber when alert condition is true (conflicts > 0, pending acks > 0, critical not done)
+- Conflicts alert callout added between stat cards and change log (only shown when conflicts exist)
+- Change Log and Vendor Acknowledgements moved ABOVE Master Checklist (now immediately after stat cards)
+- Vendor Acknowledgements stat now shows its own count
+
+**Print & Share (`events.$eventId.print.tsx`)**
+- Added Share panel between view filters and print sheet
+- Share Link tab: read-only link, Copy Link button, Email/SMS/Share… action buttons
+- With People tab: participant list with Invite/Uninvite toggle per person
+- All share controls labeled ⚠️ Demo — not wired to real auth
+
+**Event Setup (`events.$eventId.setup.tsx`)**
+- Header renamed from "Questionnaire" to "Event Setup"
+- All sections are now collapsible — click header to expand/collapse
+- Basics and Coverage open by default; all others collapsed
+- **Coverage Policy section** (NEW): start/end time, billable hours, latest departure, overtime policy, max overtime hours — labeled PROTOTYPE
+- **Portrait Preferences section** (NEW): lighting preference dropdown (5 options with descriptions), priority, total minutes — labeled PROTOTYPE
+- People section enhanced: each person row has departure constraint time, VIP, arrival uncertain, and mobility concern checkboxes
+- Vendors section enhanced: each vendor row has departure time and setup duration fields (labeled NEW)
+- Relationships section enhanced: PersonA/PersonB name inputs (with datalist autocomplete from People list), "Never in same photo" and "Must appear together" checkboxes
+- Section order: Basics → Coverage → Portrait → Locations → People → Vendors → Relationships → Photo Requests → Priorities → Notes
+- `computeCompletion` updated to include coverage fields
 
 ---
 
@@ -59,123 +91,92 @@ All 8 screens from the Lovable prototype exist as source code in `KevTrowbridge/
 
 | Check | Result |
 |---|---|
-| `npx tsc --noEmit` after data-interfaces.ts v3.0 changes | **0 TypeScript errors** |
-| `npm run dev` (Phase 2 app scaffold) | Server started at `http://localhost:8081/` in 1737ms (verified previously) |
+| `npx tsc --noEmit` after all changes | **0 TypeScript errors** |
+| `npm run dev` | **Started at http://localhost:8082/** (3000 and 8081 in use) |
+| App responds to HTTP | **200 OK** |
 
 ---
 
-## 4. Repository States
+## 4. Visible and Testable?
 
-### `KevTrowbridge/oncue` — canonical repo
+**Yes.** The app is running. Open:
+
+```
+http://localhost:8082/
+```
+
+Navigate to any event → check each tab. All 7 screens have been updated.
+
+**What to inspect specifically:**
+
+1. **Timeline** — Issues amber banner above the Gantt; click any issue pill to select that activity in the right rail; click "see all issues below" to scroll to intelligence strip. Click issues in the HealthCard (right rail).
+
+2. **Activity Detail** — Open any activity from the timeline (double-click a bar or click "Open & Edit"). The Dependencies field is now a scrollable checklist of activity names, not raw IDs.
+
+3. **People** — Tab selector at top. Switch to "People Roster" to see the demo table. Switch to "Vendors" to see the demo vendor table. "Photo Groups" tab has all the existing optimizer.
+
+4. **Status** — All 4 stat cards are clickable and scroll to their section. "Critical complete" is now "Key Milestones Done". Change Log and Vendor Acks appear before the Master Checklist.
+
+5. **Print & Share** — Share panel appears between the view filters and the print sheet. Test Copy Link, Email, SMS buttons. Switch to "With People" tab to see participant invite list.
+
+6. **Event Setup** — All sections are now collapsible. Coverage Policy and Portrait Preferences sections are new (both labeled PROTOTYPE). In the People section, expand any person row to see departure time, VIP, arrival uncertain, mobility fields. Vendors now have departure time and setup duration. Relationships now have Person A / Person B name inputs and constraint checkboxes.
+
+7. **Day-Of** — Unchanged. "View Details" links to activity detail (confirmed working).
+
+---
+
+## 5. Repository Status
 
 | Asset | Status |
 |---|---|
-| `CLAUDE.md` | Complete |
-| `docs/FOUNDER_DECISIONS.md` | Complete — 24 sections |
-| `docs/architecture/mvp-ux-architecture.md` | Complete — v3.0 |
-| `docs/architecture/data-interfaces.ts` | **Complete — v3.0** (updated this session) |
-| `src/styles.css` | Complete — Phase 1 |
-| `src/components/brand/Logo.tsx` | Complete — Phase 1 |
-| `src/components/EditorialHeader.tsx` | Complete — Phase 1 |
-| `src/components/IntelligencePanel.tsx` | Complete — Phase 1 (shape mismatch deferred to Phase 4) |
-| `src/components/InfoTip.tsx` | Complete — Phase 1 |
-| App scaffold | **Phase 2 complete** |
-| Routes (all 10) | **Phase 2 complete** |
-| UI components (43) | **Phase 2 complete** |
-| `src/lib/oncue-data.ts` | **Phase 2 complete** — demo data layer |
-| `src/lib/questionnaire.ts` | **Phase 2 stub** — Phase 3 replaces |
-| Supabase | Phase 3 |
+| `src/components/HealthCard.tsx` | Updated — v2.6 layout fix + onSelectActivity prop |
+| `src/lib/questionnaire.ts` | Updated — v3.0 types, QCoverage, QPortrait, new optional fields |
+| `src/routes/events.$eventId.timeline.tsx` | Updated — attention banner, HealthCard integration |
+| `src/routes/events.$eventId.activities.$activityId.tsx` | Updated — DependencyPicker replaces raw IDs |
+| `src/routes/events.$eventId.people.tsx` | Updated — three-tab layout with Roster and Vendors |
+| `src/routes/events.$eventId.status.tsx` | Updated — actionable stat cards, sections restructured |
+| `src/routes/events.$eventId.print.tsx` | Updated — Share panel added |
+| `src/routes/events.$eventId.setup.tsx` | Updated — collapsible sections, Coverage + Portrait cards |
 
-### `kevtrowbridge/event-flow-master` — Lovable prototype
-
-Unchanged. All 8 screens still working. Still the reference implementation.
-
-**Constraint:** Do not force-push, rebase, or amend pushed commits. `AGENTS.md` in that repo records this requirement.
+**Git status:** All 8 files modified, not yet committed. `questionnaire.ts` change is local.
 
 ---
 
-## 5. Known Issues — Categorized
+## 6. Known Issues — Categorized
 
-### Phase 3 work (Supabase integration)
-
-| Issue | Location | Notes |
-|---|---|---|
-| `questionnaire.ts` stub | `src/lib/questionnaire.ts` | Replace with Supabase-backed persistence |
-| Demo data layer | `src/lib/oncue-data.ts` | Replace with real Supabase queries |
-| Setup screen non-functional | `events.$eventId.setup.tsx` | Depends on questionnaire stub — no real save |
+### Phase 3 work (Supabase)
+- `questionnaire.ts` is still a stub — all event setup data is lost on page reload
+- `oncue-data.ts` demo data layer — replace with real Supabase queries
+- Setup screen saves nothing — labeled with ⚠️ DEMO ONLY
 
 ### Phase 4 work (intelligence engine)
-
-| Issue | Location | Notes |
-|---|---|---|
-| `IntelligencePanel.tsx` shape mismatch | `src/components/IntelligencePanel.tsx` | Uses EFM `StatusExplanation` shape; canonical shape now in `data-interfaces.ts`. Resolve in Phase 4. |
-| `ActivityStatus` casing | Multiple routes | EFM uses kebab-case; canonical uses PascalCase. Reconcile in Phase 4. |
-| `ServiceCoverage` not wired | — | Entity defined in data-interfaces.ts; constraint engine evaluates it in Phase 4 |
-| `PersonRelationship` not wired | — | Entity defined; Group Photo Optimizer reads it in Phase 4 |
-| `CoverageImpact` not produced | — | Output type defined; constraint solver produces it in Phase 4 |
+- Coverage Policy fields (CoverageCard) — data captured but not wired to constraint engine
+- Portrait Preferences (PortraitCard) — data captured but sunset engine not active
+- Person constraint fields (departure, VIP, etc.) — captured, not evaluated
+- Vendor departure/setup fields — captured, not evaluated
+- `IntelligencePanel` shape mismatch — EFM `StatusExplanation` vs canonical shape (deferred to Phase 4)
+- `ActivityStatus` casing — EFM kebab-case vs PascalCase (deferred to Phase 4)
+- `PersonRelationship` optimizer — data model defined; Group Photo Optimizer reads it in Phase 4
 
 ---
 
-## 6. Merge Sequence
+## 7. Merge Sequence
 
 | Phase | Description | Status |
 |---|---|---|
-| Phase 0 | Interface reconciliation | **Complete** — commit `a5fdf43` |
-| Phase 1 | Design system + brand components | **Complete** — commit `f8aba29` |
-| Phase 2 | App scaffold + routes + UI components | **Complete** — commits `3f57a91`, `cd77567` |
-| **Phase 2.5** | data-interfaces.ts v3.0 — Event Setup additions | **Complete — this session** |
-| Phase 3 | Supabase schema and real persistence | Ready to start |
-| Phase 4 | Real intelligence engine | |
+| Phase 0 | Interface reconciliation | Complete — `a5fdf43` |
+| Phase 1 | Design system + brand components | Complete — `f8aba29` |
+| Phase 2 | App scaffold + routes + UI components | Complete — `3f57a91`, `cd77567` |
+| Phase 2.5 | data-interfaces.ts v3.0 | Complete — `14e1dc1` |
+| **Phase 2.6** | UI refinement pass — all 7 screens | **Complete — commit pending** |
+| Phase 3 | Supabase schema and real persistence | Next |
+| Phase 4 | Real intelligence engine | After Phase 3 |
 
 ---
 
-## 7. Visible and Testable?
+## 8. Next Step
 
-**App scaffold: Yes.**
-
-Run from the oncue repo root:
-```
-npm run dev
-```
-
-Open: `http://localhost:3000/` (or 8081 if 3000 is taken).
-
-The app shows the demo event dashboard. All 6 tabs (Setup, Timeline, Day-Of, People, Status, Print) navigate correctly. Data is mock/demo. Nothing is persisted.
-
-**data-interfaces.ts changes: Not visually testable (types only).**
-
-TypeScript check passes with zero errors. The new types and entities have no application surface until Phase 3/4 wires them to Supabase and the constraint engine.
-
-**Note:** `bun` is not installed in this shell environment. Use `npm run dev` to start the server.
-
----
-
-## 8. Founder Review
-
-**Founder review is recommended now.**
-
-The data model is at its most complete pre-Supabase state. Before Phase 3 schema work begins, the founder should confirm:
-
-1. `ServiceCoverage` — does the field list (especially `excludeTravelTime`, `excludeBreaksLongerThanMinutes`, `excludeDowntimeLongerThanMinutes`) match the real coverage agreement structures they expect?
-2. `PersonRelationship` — does `cannotBeInSamePhoto` / `preferredNotSamePhoto` / `mustBePhotographedTogether` cover all the blended family scenarios encountered in real weddings?
-3. `PortraitLightingPreference` — are the 5 modes (Flexible, WarmLightBeforeSunset, SunsetGlow, ColorfulSkyAfterSunset, BlueHour) the right named options for the questionnaire UI?
-
-If any of these need adjustment, now is the time — before the Phase 3 Supabase migrations are written.
-
----
-
-## 9. Git Status
-
-| Hash | Message | Location |
-|---|---|---|
-| `14e1dc1` | Update data-interfaces.ts to v3.0 — Event Setup architecture additions | KevTrowbridge/oncue ✓ pushed |
-| `3f57a91` | Phase 2: app scaffold, all routes, UI components | KevTrowbridge/oncue ✓ pushed |
-| `f8aba29` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
-| `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
-
----
-
-## 10. Exact Successor Prompt (Phase 3)
+Commit Phase 2.6 and push, then begin Phase 3.
 
 Before beginning Phase 3, confirm the founder has:
 - Created a Supabase project at supabase.com
@@ -184,8 +185,7 @@ Before beginning Phase 3, confirm the founder has:
 ```
 Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
 
-Task: Phase 3 of the oncue/event-flow-master merge — Supabase schema and
-real data persistence.
+Task: Phase 3 of the oncue build — Supabase schema and real data persistence.
 
 Read first:
 - docs/claude-handoff/current.md
@@ -194,8 +194,6 @@ Read first:
 
 Phase 3 scope:
 1. Design the SQL schema based on data-interfaces.ts v3.0
-   (Event, Activity, Person, PersonRelationship, PhotoGroup, ServiceCoverage,
-   QuestionnaireVendor, EmergencyContact, UserProfile)
 2. Write and apply Supabase migrations
 3. Replace src/lib/oncue-data.ts demo layer with real Supabase queries
 4. Replace src/lib/questionnaire.ts stub with Supabase-backed event setup
@@ -203,7 +201,6 @@ Phase 3 scope:
 
 Do not:
 - Modify event-flow-master
-- Change the route structure or UI components
+- Change the route structure or core UI components
 - Implement the real intelligence engine (Phase 4)
-- Add auth flows yet (unless Supabase requires it for RLS)
 ```

@@ -85,7 +85,7 @@ function ActivityDetailInner({
     bufferAfter: a.buffers.after,
     isAnchor: a.isAnchor,
     isOptional: a.isOptional,
-    dependencies: a.dependencies.join(","),
+    dependencies: [...a.dependencies] as string[],
   });
 
   function save() {
@@ -101,10 +101,7 @@ function ActivityDetailInner({
       owner: form.owner,
       isAnchor: form.isAnchor,
       isOptional: form.isOptional,
-      dependencies: form.dependencies
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      dependencies: form.dependencies,
       buffers: {
         before: Number(form.bufferBefore) || 0,
         after: Number(form.bufferAfter) || 0,
@@ -224,12 +221,14 @@ function ActivityDetailInner({
             onChange={(v) => setForm((s) => ({ ...s, bufferAfter: Number(v) }))}
             onBlur={save}
           />
-          <Input
-            label="Dependencies (comma-separated activity IDs)"
-            value={form.dependencies}
-            onChange={(v) => setForm((s) => ({ ...s, dependencies: v }))}
-            onBlur={save}
-            className="md:col-span-2"
+          <DependencyPicker
+            allActivities={allActs}
+            currentId={a.id}
+            selectedIds={form.dependencies}
+            onChange={(ids) => {
+              setForm((s) => ({ ...s, dependencies: ids }));
+              setTimeout(save, 0);
+            }}
           />
           <div className="flex items-center gap-4 md:col-span-2">
             <Checkbox
@@ -518,4 +517,65 @@ function Checkbox({
 function toLocalTime(iso: string) {
   const d = new Date(iso);
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+function DependencyPicker({
+  allActivities,
+  currentId,
+  selectedIds,
+  onChange,
+}: {
+  allActivities: ReturnType<typeof getActivities>;
+  currentId: string;
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const candidates = allActivities.filter((act) => act.id !== currentId);
+  return (
+    <div className="md:col-span-2">
+      <div className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+        Depends on (activities that must finish first)
+      </div>
+      <p className="mb-2 text-[11px] text-muted-foreground">
+        OnCue uses these to calculate cascade impacts when an upstream activity is delayed.
+      </p>
+      <div className="max-h-48 overflow-y-auto rounded-md border border-border bg-background p-2">
+        {candidates.length === 0 && (
+          <p className="px-2 py-1 text-xs text-muted-foreground">No other activities on this event.</p>
+        )}
+        {candidates.map((act) => {
+          const checked = selectedIds.includes(act.id);
+          return (
+            <label
+              key={act.id}
+              className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-secondary/50"
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => {
+                  const next = checked
+                    ? selectedIds.filter((id) => id !== act.id)
+                    : [...selectedIds, act.id];
+                  onChange(next);
+                }}
+                className="h-3.5 w-3.5"
+              />
+              <span className="min-w-0 flex-1 truncate text-sm text-foreground">{act.title}</span>
+              <span className="shrink-0 text-[11px] text-muted-foreground">{toLocalTime(act.start)}</span>
+            </label>
+          );
+        })}
+      </div>
+      {selectedIds.length > 0 && (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Selected:{" "}
+          {allActivities
+            .filter((act) => selectedIds.includes(act.id))
+            .map((act) => act.title)
+            .join(", ")}
+        </p>
+      )}
+    </div>
+  );
 }

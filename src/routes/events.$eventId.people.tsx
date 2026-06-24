@@ -13,6 +13,32 @@ export const Route = createFileRoute("/events/$eventId/people")({
   component: PeoplePage,
 });
 
+// ⚠️ DEMO ONLY — static prototype data. Replace with real Supabase queries in Phase 3.
+const DEMO_PEOPLE = [
+  { id: "p1", name: "Sarah Chen", role: "Bride", side: "Side A", group: "Couple", vip: true, departure: null },
+  { id: "p2", name: "Daniel Okonkwo", role: "Groom", side: "Side B", group: "Couple", vip: true, departure: null },
+  { id: "p3", name: "Margaret Chen", role: "Bride's Mother", side: "Side A", group: "Parent", vip: false, departure: "20:30" },
+  { id: "p4", name: "James Chen", role: "Bride's Father", side: "Side A", group: "Parent", vip: false, departure: "20:30" },
+  { id: "p5", name: "Patricia Okonkwo", role: "Groom's Mother", side: "Side B", group: "Parent", vip: false, departure: null },
+  { id: "p6", name: "Charles Okonkwo", role: "Groom's Father", side: "Side B", group: "Parent", vip: false, departure: null },
+  { id: "p7", name: "Lily Chen", role: "Bride's Sister", side: "Side A", group: "Sibling", vip: false, departure: null },
+  { id: "p8", name: "Marcus Chen", role: "Bride's Brother", side: "Side A", group: "Sibling", vip: false, departure: null },
+  { id: "p9", name: "Aisha Okonkwo", role: "Groom's Sister", side: "Side B", group: "Sibling", vip: false, departure: null },
+  { id: "p10", name: "Eleanor Voss", role: "Bride's Grandmother", side: "Side A", group: "Grandparent", vip: true, departure: "18:00" },
+  { id: "p11", name: "Sophie Laurent", role: "Maid of Honor", side: "Side A", group: "Wedding Party", vip: false, departure: null },
+  { id: "p12", name: "Jordan Blake", role: "Best Man", side: "Side B", group: "Wedding Party", vip: false, departure: null },
+];
+
+// ⚠️ DEMO ONLY — static prototype data. Replace with real Supabase queries in Phase 3.
+const DEMO_VENDORS = [
+  { id: "v1", role: "Photographer", name: "You", arrival: "13:00", departure: "22:00", setup: null, contact: "" },
+  { id: "v2", role: "Videographer", name: "Lumen Films", arrival: "14:00", departure: "22:00", setup: 30, contact: "+1 555-0191" },
+  { id: "v3", role: "Planner", name: "Sophie Laurent", arrival: "11:00", departure: "23:00", setup: null, contact: "+1 555-0182" },
+  { id: "v4", role: "DJ", name: "Resonance Audio", arrival: "15:00", departure: "23:00", setup: 90, contact: "+1 555-0100" },
+  { id: "v5", role: "Florist", name: "Bloom & Co.", arrival: "09:00", departure: "16:00", setup: 180, contact: "+1 555-0145" },
+  { id: "v6", role: "Hair & Makeup", name: "Studio Glow", arrival: "08:00", departure: "14:00", setup: null, contact: "+1 555-0133" },
+];
+
 const KIND_LABEL: Record<PhotoGroup["kind"], string> = {
   "bride-side": "Bride Side",
   shared: "Shared",
@@ -31,6 +57,8 @@ function PeoplePage() {
   const { eventId } = useParams({ from: "/events/$eventId" });
   const familyPhoto = getActivities(eventId).find((a) => a.title === "Family Photos")!;
   const planned = familyPhoto.duration;
+
+  const [tab, setTab] = useState<"groups" | "roster" | "vendors">("groups");
 
   // ⚠️ DEMO ONLY: groups are seeded from mock data and mutated in local state.
   // Real photo groups would be persisted and re-optimized by the backend.
@@ -128,15 +156,155 @@ function PeoplePage() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-6 md:px-8">
-      <div className="mb-6 flex items-end justify-between gap-4">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-gold">Family Group Optimizer</div>
-          <h1 className="font-display text-3xl text-foreground">Photo Groups</h1>
-          <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            Default sequence runs Bride Side → Shared → Groom Side, so each family unit is photographed contiguously. Reorder, defer, merge, split, or flag a missing person — OnCue reports how each change affects the photo block.
+      {/* Page header */}
+      <div className="mb-5">
+        <div className="text-[10px] uppercase tracking-[0.22em] text-gold">People</div>
+        <h1 className="font-display text-3xl text-foreground">People & Vendors</h1>
+        <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+          Manage the people appearing in photos and the vendors delivering the event. Photo Groups uses these rosters to build the optimal shooting sequence.
+        </p>
+      </div>
+
+      {/* Tab selector */}
+      <div className="mb-5 flex gap-1 rounded-xl border border-border bg-card p-1">
+        {(
+          [
+            { key: "groups", label: "Photo Groups", count: groups.filter((g) => !g.deferred).length },
+            { key: "roster", label: "People Roster", count: DEMO_PEOPLE.length },
+            { key: "vendors", label: "Vendors", count: DEMO_VENDORS.length },
+          ] as const
+        ).map(({ key, label, count }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setTab(key)}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
+              tab === key
+                ? "bg-secondary text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {label}
+            <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${tab === key ? "bg-card text-foreground" : "bg-secondary/60 text-muted-foreground"}`}>
+              {count}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* ─── People Roster ─── */}
+      {tab === "roster" && (
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              ⚠️ Demo data — these people are proto-examples of what Phase 3 will load from your event.
+            </p>
+            <button type="button" className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-secondary/50">
+              + Add Person
+            </button>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-secondary/30">
+                  <th className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Name</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Role</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Side</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Group</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Departs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {DEMO_PEOPLE.map((p, i) => (
+                  <tr key={p.id} className={`border-b border-border/40 ${i % 2 === 0 ? "" : "bg-secondary/10"}`}>
+                    <td className="px-4 py-2.5">
+                      <span className="font-medium text-foreground">{p.name}</span>
+                      {p.vip && (
+                        <span className="ml-2 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-medium text-gold">VIP</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{p.role}</td>
+                    <td className="px-3 py-2.5">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${p.side === "Side A" ? "bg-blush/15 text-blush" : p.side === "Side B" ? "bg-secondary text-foreground" : "bg-gold/15 text-gold"}`}>
+                        {p.side}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{p.group}</td>
+                    <td className="px-3 py-2.5">
+                      {p.departure ? (
+                        <span className="status-shifting text-xs">{p.departure}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Departure times appear as warnings in the Photo Group Optimizer when groups are scheduled after that person must leave.
           </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card px-4 py-3 text-right">
+        </section>
+      )}
+
+      {/* ─── Vendors ─── */}
+      {tab === "vendors" && (
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              ⚠️ Demo data — Phase 3 will load from your event questionnaire.
+            </p>
+            <button type="button" className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-secondary/50">
+              + Add Vendor
+            </button>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-secondary/30">
+                  <th className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Role</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Name</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Arrives</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Departs</th>
+                  <th className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Setup</th>
+                </tr>
+              </thead>
+              <tbody>
+                {DEMO_VENDORS.map((v, i) => (
+                  <tr key={v.id} className={`border-b border-border/40 ${i % 2 === 0 ? "" : "bg-secondary/10"}`}>
+                    <td className="px-4 py-2.5">
+                      <span className="rounded-full bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">{v.role}</span>
+                    </td>
+                    <td className="px-3 py-2.5 font-medium text-foreground">{v.name}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{v.arrival}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{v.departure}</td>
+                    <td className="px-3 py-2.5">
+                      {v.setup ? (
+                        <span className="text-xs text-muted-foreground">{v.setup}m</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Setup duration lets OnCue insert a setup block before the vendor's first visible activity. Departure time triggers a coverage warning if the timeline extends past it.
+          </p>
+        </section>
+      )}
+
+      {/* ─── Photo Groups ─── */}
+      {tab === "groups" && (
+      <div>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <p className="max-w-xl text-sm text-muted-foreground">
+          Default sequence: Bride Side → Shared → Groom Side, so each family unit is photographed contiguously. Reorder, defer, merge, split, or flag a missing person — OnCue reports how each change affects the photo block.
+        </p>
+        <div className="shrink-0 rounded-xl border border-border bg-card px-4 py-3 text-right">
           <div className="text-[10px] uppercase tracking-widest text-gold">
             <InfoTip label="The duration OnCue currently estimates for the photo block, summed across every active group. Compare against the activity's planned duration.">
               Photo block estimate
@@ -257,6 +425,9 @@ function PeoplePage() {
         <span className="status-anchor mr-2">●</span>
         Tap any name in a group to flag a missing person — OnCue will suggest how to keep moving without losing the timeline.
       </div>
+      </div>
+      )}
+
     </div>
   );
 }

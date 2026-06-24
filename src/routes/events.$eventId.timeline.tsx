@@ -1,5 +1,5 @@
 import { createFileRoute, useParams, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import {
   getActivities,
@@ -43,8 +43,11 @@ function TimelinePage() {
   const selected = getActivity(selectedId)!;
   const explanation = useMemo(() => explainStatus(eventId, selectedId), [eventId, selectedId]);
 
+  // Ref to scroll to the full intelligence strip when user clicks "See all issues"
+  const issuesStripRef = useRef<HTMLElement>(null);
 
   const dayStart = new Date(`${evt.date}T${String(HOURS[0]).padStart(2, "0")}:00:00.000Z`);
+  const attentionCount = health.attention.length;
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6 md:px-8">
@@ -78,6 +81,45 @@ function TimelinePage() {
           </button>
         </div>
       </div>
+
+      {/* Attention alert — above the main grid so it's always above the fold */}
+      {attentionCount > 0 && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[color:var(--shifting)]/40 bg-[color:var(--shifting)]/8 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--shifting)]" />
+            <p className="text-sm text-foreground">
+              <span className="font-medium status-shifting">{attentionCount} {attentionCount === 1 ? "issue" : "issues"} need attention</span>
+              {" "}— click any activity in the Issues list or{" "}
+              <button
+                type="button"
+                onClick={() => issuesStripRef.current?.scrollIntoView({ behavior: "smooth" })}
+                className="text-gold underline-offset-2 hover:underline"
+              >
+                see all issues below
+              </button>
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            {health.attention.slice(0, 3).map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => setSelectedId(a.id)}
+                className={`rounded-full border border-[color:var(--shifting)]/40 px-2.5 py-1 text-[11px] text-foreground transition hover:bg-secondary/60 ${
+                  selectedId === a.id ? "bg-[color:var(--shifting)]/15 font-medium" : ""
+                }`}
+              >
+                {a.title}
+              </button>
+            ))}
+            {attentionCount > 3 && (
+              <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                +{attentionCount - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
         {/* Gantt */}
@@ -154,10 +196,9 @@ function TimelinePage() {
                     isSelected ? "bg-secondary/60" : ""
                   }`}
                 >
-
                   <div className="flex items-center gap-3 px-4 py-2.5">
                     <span
-                      className={`inline-block h-2 w-2 rounded-full ${
+                      className={`inline-block h-2 w-2 shrink-0 rounded-full ${
                         a.isAnchor
                           ? "bg-gold"
                           : isAttention
@@ -203,17 +244,18 @@ function TimelinePage() {
 
         {/* Right rail */}
         <aside className="space-y-4">
-          <HealthCard health={health} />
+          {/* Health card with clickable issue items */}
+          <HealthCard health={health} onSelectActivity={setSelectedId} />
 
           {/* Selected activity */}
           <div className="rounded-xl border border-border bg-card p-5">
             <div className="mb-3 flex items-start justify-between gap-2">
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-display text-xl text-foreground">{selected.title}</h3>
-                <p className="text-xs text-muted-foreground">{selected.location}</p>
+                <p className="truncate text-xs text-muted-foreground">{selected.location}</p>
               </div>
               <span
-                className={`rounded-full border border-current/30 px-2 py-0.5 text-[10px] font-medium tracking-wider ${
+                className={`shrink-0 rounded-full border border-current/30 px-2 py-0.5 text-[10px] font-medium tracking-wider ${
                   selected.isAnchor
                     ? "status-anchor"
                     : NEEDS_PANEL.has(selected.status)
@@ -262,20 +304,33 @@ function TimelinePage() {
         </aside>
       </div>
 
-      {/* Intelligence Strip — every issue gets the Why/Impact/Affected/Recommendation treatment */}
+      {/* Intelligence Strip — full Why/Impact/Affected/Recommendation for every issue */}
       {health.attention.length > 0 && (
-        <section className="mt-6 space-y-3">
-          <div className="text-[10px] uppercase tracking-[0.22em] text-gold">Issues — tap any card for details</div>
+        <section ref={issuesStripRef} className="mt-6 space-y-3" id="issues-strip">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-gold">
+              Issues — {attentionCount} {attentionCount === 1 ? "activity" : "activities"} need attention
+            </div>
+            <span className="text-[10px] text-muted-foreground">Click any card to select the activity above</span>
+          </div>
 
           {acts
             .filter((a) => NEEDS_PANEL.has(a.status))
             .map((a) => (
-              <IntelligencePanel
+              <div
                 key={a.id}
-                title={a.title}
-                explanation={explainStatus(eventId, a.id)}
-                defaultOpen={a.id === firstAttentionId}
-              />
+                onClick={() => setSelectedId(a.id)}
+                className="cursor-pointer"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && setSelectedId(a.id)}
+              >
+                <IntelligencePanel
+                  title={a.title}
+                  explanation={explainStatus(eventId, a.id)}
+                  defaultOpen={a.id === firstAttentionId}
+                />
+              </div>
             ))}
         </section>
       )}
