@@ -118,7 +118,7 @@ Navigate to any event, then inspect:
 | `docs/claude-handoff/current.md` | This file |
 | `docs/claude-handoff/archive/2026-06-23-2000-phase-2-6-ui-refinement-complete.md` | Archived before this update |
 
-**Git status:** Phase 2.7 changes are local — not yet committed or pushed. Awaiting founder approval to commit + push.
+**Git status:** Phase 2.7 committed as `b8db357` and pushed to `origin/main`.
 
 ---
 
@@ -175,7 +175,7 @@ The **Low-Risk Approval Standard** was added to `CLAUDE.md`. Effective immediate
 | Phase 2 | App scaffold + routes + UI components | Complete — `3f57a91`, `cd77567` |
 | Phase 2.5 | data-interfaces.ts v3.0 | Complete — `14e1dc1` |
 | Phase 2.6 | UI refinement pass — all 7 screens | Complete — `23016da` |
-| **Phase 2.7** | Founder review polish pass | **Complete — commit pending** |
+| **Phase 2.7** | Founder review polish pass | **Complete — `b8db357` — pushed** |
 | Phase 3 | Supabase schema and real persistence | Next (requires founder Supabase project) |
 | Phase 4 | Real intelligence engine | After Phase 3 |
 
@@ -184,11 +184,6 @@ The **Low-Risk Approval Standard** was added to `CLAUDE.md`. Effective immediate
 ## 9. Next Step
 
 Founder approval required to commit and push Phase 2.7.
-
-**To commit and push, send:**
-```
-Commit and push Phase 2.7.
-```
 
 **Before beginning Phase 3, confirm:**
 - Supabase project created at supabase.com
