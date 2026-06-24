@@ -168,7 +168,7 @@ If any of these need adjustment, now is the time — before the Phase 3 Supabase
 
 | Hash | Message | Location |
 |---|---|---|
-| (this session) | Update data-interfaces.ts to v3.0 for Event Setup architecture | KevTrowbridge/oncue — see below |
+| `14e1dc1` | Update data-interfaces.ts to v3.0 — Event Setup architecture additions | KevTrowbridge/oncue ✓ pushed |
 | `3f57a91` | Phase 2: app scaffold, all routes, UI components | KevTrowbridge/oncue ✓ pushed |
 | `f8aba29` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
 | `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
