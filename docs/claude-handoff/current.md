@@ -7,7 +7,7 @@
 
 ## 1. Thirty-Second Summary
 
-Phase 2.7 is done. All founder-identified polish items have been addressed across Timeline, Status, People, and Print & Share. Zero TypeScript errors. Commit and push are pending founder approval.
+Phase 2.7 is done. All founder-identified polish items have been addressed across Timeline, Status, People, and Print & Share. Zero TypeScript errors. Committed as `b8db357` and pushed to `origin/main`.
 
 ---
 
@@ -183,7 +183,13 @@ The **Low-Risk Approval Standard** was added to `CLAUDE.md`. Effective immediate
 
 ## 9. Next Step
 
-Founder approval required to commit and push Phase 2.7.
+Phase 2.7 is pushed. Phase 3 is next.
+
+**Phase 3 cannot begin until the founder provides:**
+- Supabase project URL
+- Supabase anon key
+
+Create the project at supabase.com, then share both values to start Phase 3.
 
 **Before beginning Phase 3, confirm:**
 - Supabase project created at supabase.com
