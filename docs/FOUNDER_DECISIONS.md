@@ -4,7 +4,7 @@
 
 This document records approved strategic, product, branding, architecture, UX, roadmap, and business decisions for OnCue. It is the canonical decision log for implementation and GitHub-tracked work.
 
-**Last updated:** June 22, 2026
+**Last updated:** June 23, 2026
 
 ### Governance hierarchy
 
@@ -212,6 +212,8 @@ From questionnaire data, the system should automatically produce:
 ### Smart defaults
 
 Every field must have a sensible default. A photographer who enters only the event date and couple names should receive a usable baseline timeline immediately. Users should not face blank slates.
+
+**Note:** The Event Setup tab is designed for professional use — photographers and planners who understand the full event structure. It is not a bride questionnaire. See §28 for the Couple Intake View decision.
 
 ---
 
@@ -475,6 +477,66 @@ Do not build billing or paywalls now. Document only.
 | Lovable scaffold repo | `event-flow-master` (separate Lovable-created repo) | Approved | Keep as a staging/export repo for now. Do not overwrite `oncue`. |
 | Merge strategy | Pending | Claude Code will inspect both repositories and propose a safe merge strategy before any code is moved. |
 | Old accidental repo | `ktrowbridge/oncue` | Retained | Left in place. Not deleted. Not the active repo. |
+
+---
+
+## 25. Timeline Architecture
+
+| Decision | Status | Notes |
+| --- | --- | --- |
+| Default timeline view | Approved | The timeline defaults to the Event Timeline — the shared, authoritative schedule for the whole event. |
+| Multiple timeline modes | Approved | Users may switch between: Event Timeline, My Timeline, and Role Timelines. |
+| Event Timeline as source of truth | Approved | The Event Timeline is always the source of truth. Individual timelines are filtered views of the same schedule — they are not separate schedules. |
+| Filtered views, not separate schedules | Approved | My Timeline and Role Timelines show activities relevant to the viewer's role and involvement. They do not create independent scheduling objects. |
+| Mode switching | Approved | Timeline mode switching must be non-destructive. Changing your view does not affect the Event Timeline. |
+
+---
+
+## 26. Role-Based Visibility
+
+| Decision | Status | Notes |
+| --- | --- | --- |
+| Event types define terminology, not architecture | Approved | Event types (wedding, corporate, gala, etc.) determine the labels, roles, and templates presented to the user. They do not change the underlying data model or system architecture. |
+| Wedding roles are templates | Approved | "Photographer," "Planner," "Officiant," "DJ," etc. are template-defined role names — not hardcoded system concepts. |
+| Corporate roles are templates | Approved | "AV Lead," "Stage Manager," "Registration," etc. are template-defined role names — not hardcoded system concepts. |
+| Visibility derives from role and involvement | Approved | A participant sees activities they own, are involved in, or are relevant to their role. Visibility is computed from activity relationships, not from a static access list. |
+| Notification relevance derives from activity involvement | Approved | Participants receive notifications about activities they own or are involved in. Generic timeline-wide notifications are avoided. |
+
+---
+
+## 27. Notification Intelligence
+
+| Decision | Status | Notes |
+| --- | --- | --- |
+| Recalculation and notifications are separate systems | Approved | Timeline Intelligence recalculates freely and aggressively when constraints are affected. Notification Intelligence is a separate layer that decides who to notify and when. These must not be conflated. |
+| Timeline Intelligence may recalculate aggressively | Approved | The engine should recalculate whenever a relevant constraint changes — without waiting for notification decisions. |
+| Notification Intelligence must be conservative | Approved | A recalculation does not automatically produce a notification. The notification system must evaluate whether a participant needs to be told about a change before sending anything. |
+| Avoid over-notification | Approved | Sending too many notifications erodes trust and leads to participants ignoring them. Notification frequency must be controlled deliberately. |
+| Family and guest notification scope | Approved | Family members and guests should only receive information directly relevant to them (e.g., their portrait time, ceremony start). They must not receive general timeline updates or operational alerts. |
+
+---
+
+## 28. Couple Intake View
+
+| Decision | Status | Notes |
+| --- | --- | --- |
+| Couple Intake View is a future roadmap item | Approved | A dedicated Couple Intake View is planned but not approved for MVP or Phase 2 development. |
+| Separate surface from professional Event Setup | Approved | The Couple Intake View is a distinct UX surface. It must not be built by modifying or extending the professional Event Setup tab. |
+| Couple/bride experience must be simplified and guided | Approved | The Couple Intake experience should be completion-focused, use plain language, and guide the couple through a step-by-step flow. It is not a data-entry form. |
+| Event Setup remains professional-facing | Approved | The Event Setup tab is designed for photographers and planners who understand event structure. It must not be redesigned to accommodate the couple experience. |
+| Do not build now | Approved | Implementation requires its own UX design and scope definition. Do not begin until explicitly scoped. |
+
+---
+
+## 29. Export Strategy
+
+| Decision | Status | Notes |
+| --- | --- | --- |
+| PDF as primary execution artifact | Approved | PDF is the primary export format and the required offline fallback for the wedding day. This extends §20 (PDF Backup). |
+| CSV as first universal export format | Approved | CSV is the first non-PDF export format. It provides a universal, portable export of timeline and checklist data compatible with any tool. |
+| XLSX planned as multi-sheet workbook | Pending | XLSX is planned as a later export format — one workbook with multiple sheets (Timeline, Checklist, People, Vendors). Not approved for immediate implementation. |
+| Google Sheets integration deferred | Deferred | Google Sheets sync or direct export is deferred. It depends on the CSV/XLSX foundation. Do not design for it now. |
+| Export priority order | Approved | PDF → CSV → XLSX → Google Sheets. Build in this order. Do not skip ahead. |
 
 ---
 

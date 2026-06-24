@@ -1,89 +1,78 @@
 # Claude Handoff — Current
 
 **Last updated:** June 23, 2026
-**Current phase:** Phase 2.6 complete — UI refinement pass across all 7 screens
+**Current phase:** Phase 2.7 complete — Founder Review Polish Pass
 
 ---
 
 ## 1. Thirty-Second Summary
 
-Phase 2.6 is done. All 7 screens have been refined based on the founder's browser review. Zero TypeScript errors. App compiles and runs.
+Phase 2.7 is done. All founder-identified polish items have been addressed across Timeline, Status, People, and Print & Share. Zero TypeScript errors. Commit and push are pending founder approval.
 
 ---
 
-## 2. What Changed This Session
+## 2. What Changed in Phase 2.7
 
-### questionnaire.ts — Updated to v3.0
+### People tab order (`events.$eventId.people.tsx`)
+- Default tab changed from `"groups"` to `"roster"`
+- Tab order reordered: People Roster → Vendors → Photo Groups (was: Photo Groups → People Roster → Vendors)
 
-New types: `QCoverage`, `QPortrait`, `OvertimePolicy`, `PortraitLightingPreference`, `PortraitLightingPriority`
+### Language standardization (Timeline + Status)
+- "Needs Adjustment" legend label → "Needs Attention"
+- Attention banner: "issues need attention" → "activities need attention"
+- Intelligence Strip header: "Issues — X activities" → "Needs Attention — X activities"
+- Status page: "Conflicts" section is now a compact "Needs Attention" row
+- "Conflict" is reserved exclusively for true scheduling conflicts (overlap, impossible travel, double-booked)
 
-New optional fields on:
-- `QPerson`: `departureConstraintTime`, `arrivalUncertain`, `isVip`, `mobilityConcern`
-- `QVendor`: `departureTime`, `setupDurationMinutes`
-- `QRelationship`: `personAName`, `personBName`, `cannotBeInSamePhoto`, `mustBePhotographedTogether`
+### Timeline interaction discoverability (`events.$eventId.timeline.tsx`)
+- Added "Click to select · Double-click to edit" hint in the toolbar legend area
+- Selected Gantt row: `border-l-2 border-l-gold bg-secondary/60` (gold left border on selection)
+- Unselected rows: `border-l-2 border-l-transparent` (consistent spacing)
+- "Open & Edit Activity" link → `bg-gradient-gold text-primary-foreground shadow-gold` (primary gold button)
+- "Update Remaining Timeline" button → `border border-border` outline style (secondary)
 
-New constants: `PORTRAIT_LIGHTING_OPTIONS`
+### Status page (`events.$eventId.status.tsx`) — complete rewrite
+- New `CollapsiblePanel` and `StatCard` components
+- "Schedule Conflicts" stat card links to Timeline when conflicts > 0
+- Compact "Needs Attention" row: count + "Review in Timeline →" gold button + issue pills
+- Issue pills link directly to Timeline, not to Status sections
+- No issue list duplicated from Timeline — "Use Timeline to view and resolve issues" is the instruction
+- Side-by-side collapsible panels: Vendor Acknowledgements | Recent Changes
+- Master Checklist in collapsible panel with All / Open / Done filter controls
+- All panels open by default
 
-`Questionnaire` interface extended with `coverage: QCoverage` and `portrait: QPortrait` fields.
+### Print & Share — full rewrite (`events.$eventId.print.tsx`)
 
----
+**Task 5 — Permissions model:**
+- Replaced `invited: Set<string>` / Invite/Uninvite toggle with `permissions: Record<string, PermissionLevel>` state
+- `PermissionLevel`: `"view-only" | "acknowledge" | "suggest-changes" | "request-changes" | "full-edit" | "co-owner"`
+- Defaults by role: Planner → full-edit, DJ → acknowledge, Couple → suggest-changes, Catering → view-only, Videographer → view-only
+- Each participant row shows a `<Select>` dropdown for their permission level
+- Permission level descriptions shown below the participant list
+- Clearly marked: Prototype — not active in Phase 2
 
-### Screen-by-screen changes
+**Task 6 — Branding:**
+- Footer changed from "Elegant. Refined. Intelligent." / "OnCue is Timeline Intelligence."
+- → "Generated with OnCue" / "oncue.day"
 
-**Timeline (`events.$eventId.timeline.tsx`)**
-- Added amber attention banner ABOVE the Gantt when any issues exist — always above the fold
-- Banner shows issue count + pill buttons for top 3 issues (click to select)
-- Banner has "see all issues below" scroll link to the Intelligence Strip
-- HealthCard now receives `onSelectActivity` — clicking an issue card in the right rail selects that activity
-- Intelligence Strip anchored with `id="issues-strip"` and scroll ref
+**Task 7 — Offline backup strategy:**
+- Added "What to include in this print / export" collapsible section (above the print article)
+- Six section checkboxes with defaults:
+  - Day-of Timeline ✓ ON
+  - Master Checklist ✓ ON
+  - Family / Photo Groups ☐ OFF
+  - People List ☐ OFF
+  - Vendor Contacts ✓ ON
+  - Emergency Contacts ☐ OFF
+- Print article conditionally renders each section based on checkbox state
+- Sections implemented: Day-of Timeline, Master Checklist, Photo Groups (from `generatePhotoGroups`), People List (demo), Vendor Contacts (demo), Emergency Contacts (demo)
+- `getMasterChecklist` and `generatePhotoGroups` imported from `oncue-data`
+- Consistent section headers and offline-backup-quality table formatting
+- Demo data rows labeled ⚠️ DEMO ONLY
 
-**HealthCard (`src/components/HealthCard.tsx`)**
-- Fixed layout: removed `md:grid-cols-3` (caused text overflow in 380px rail)
-- Now uses `space-y-5` stacked vertical layout — Issues / Protected / Recommended
-- Issues section shown first (highest priority)
-- Each issue item is now a clickable button (calls `onSelectActivity` prop)
-- Shows "+N more — scroll to Issues below" hint when issues exceed 4
-- New optional prop: `onSelectActivity?: (id: string) => void`
-
-**Activity Detail (`events.$eventId.activities.$activityId.tsx`)**
-- `form.dependencies` changed from comma-joined string to `string[]`
-- `save()` now passes the array directly (no more `.split(",").map().filter()`)
-- Replaced the "Dependencies (comma-separated activity IDs)" text input with `DependencyPicker` component
-- `DependencyPicker`: scrollable checklist of all other activities, shows title + start time, shows selected names summary below
-
-**People (`events.$eventId.people.tsx`)**
-- Page renamed from "Photo Groups" to "People & Vendors"
-- Three-tab selector: Photo Groups · People Roster · Vendors
-- **People Roster tab**: table view of 12 demo people with name, role, side chip, group, departure time, VIP badge
-- **Vendors tab**: table view of 6 demo vendors with role chip, name, arrival/departure times, setup duration
-- **Photo Groups tab**: all existing optimizer content (reorder, defer, merge, split, missing person) — unchanged
-- Demo data labeled ⚠️ DEMO ONLY
-
-**Status (`events.$eventId.status.tsx`)**
-- All 4 stat cards are now clickable buttons with `onClick={() => scrollTo(ref)}`
-- "Critical complete" renamed to "Key Milestones Done"
-- Stat cards highlight in amber when alert condition is true (conflicts > 0, pending acks > 0, critical not done)
-- Conflicts alert callout added between stat cards and change log (only shown when conflicts exist)
-- Change Log and Vendor Acknowledgements moved ABOVE Master Checklist (now immediately after stat cards)
-- Vendor Acknowledgements stat now shows its own count
-
-**Print & Share (`events.$eventId.print.tsx`)**
-- Added Share panel between view filters and print sheet
-- Share Link tab: read-only link, Copy Link button, Email/SMS/Share… action buttons
-- With People tab: participant list with Invite/Uninvite toggle per person
-- All share controls labeled ⚠️ Demo — not wired to real auth
-
-**Event Setup (`events.$eventId.setup.tsx`)**
-- Header renamed from "Questionnaire" to "Event Setup"
-- All sections are now collapsible — click header to expand/collapse
-- Basics and Coverage open by default; all others collapsed
-- **Coverage Policy section** (NEW): start/end time, billable hours, latest departure, overtime policy, max overtime hours — labeled PROTOTYPE
-- **Portrait Preferences section** (NEW): lighting preference dropdown (5 options with descriptions), priority, total minutes — labeled PROTOTYPE
-- People section enhanced: each person row has departure constraint time, VIP, arrival uncertain, and mobility concern checkboxes
-- Vendors section enhanced: each vendor row has departure time and setup duration fields (labeled NEW)
-- Relationships section enhanced: PersonA/PersonB name inputs (with datalist autocomplete from People list), "Never in same photo" and "Must appear together" checkboxes
-- Section order: Basics → Coverage → Portrait → Locations → People → Vendors → Relationships → Photo Requests → Priorities → Notes
-- `computeCompletion` updated to include coverage fields
+### FOUNDER_DECISIONS.md — Task 8
+- Added brief note under §8 that Event Setup is professional-facing and that Couple Intake is a separate future surface (see §28)
+- §28 Couple Intake View formally documented as a dedicated section (see §6 of this handoff for all five new decisions)
 
 ---
 
@@ -91,76 +80,93 @@ New constants: `PORTRAIT_LIGHTING_OPTIONS`
 
 | Check | Result |
 |---|---|
-| `npx tsc --noEmit` after all changes | **0 TypeScript errors** |
-| `npm run dev` | **Started at http://localhost:8082/** (3000 and 8081 in use) |
-| App responds to HTTP | **200 OK** |
+| `npx tsc --noEmit` after all Phase 2.7 changes | **0 TypeScript errors** |
+| `npm run dev` state | App was running at http://localhost:8082/ as of Phase 2.6 — not re-launched in this session (no code changes require restart for hot reload) |
 
 ---
 
 ## 4. Visible and Testable?
 
-**Yes.** The app is running. Open:
+**Yes — after `npm run dev`.**
 
+Open:
 ```
 http://localhost:8082/
 ```
 
-Navigate to any event → check each tab. All 7 screens have been updated.
+Navigate to any event, then inspect:
 
-**What to inspect specifically:**
+1. **Timeline** — Toolbar shows "Click to select · Double-click to edit". Click any row to see gold left border on the selected row. "Open & Edit Activity" is now a gold primary button. "Update Remaining Timeline" is an outline button.
 
-1. **Timeline** — Issues amber banner above the Gantt; click any issue pill to select that activity in the right rail; click "see all issues below" to scroll to intelligence strip. Click issues in the HealthCard (right rail).
+2. **People** — Opens to "People Roster" tab by default. Tabs are ordered: People Roster → Vendors → Photo Groups.
 
-2. **Activity Detail** — Open any activity from the timeline (double-click a bar or click "Open & Edit"). The Dependencies field is now a scrollable checklist of activity names, not raw IDs.
+3. **Status** — Compact command center. "Needs Attention" row with count + "Review in Timeline →" button. Vendor Acks and Recent Changes side by side (collapsible). Master Checklist with filter controls.
 
-3. **People** — Tab selector at top. Switch to "People Roster" to see the demo table. Switch to "Vendors" to see the demo vendor table. "Photo Groups" tab has all the existing optimizer.
-
-4. **Status** — All 4 stat cards are clickable and scroll to their section. "Critical complete" is now "Key Milestones Done". Change Log and Vendor Acks appear before the Master Checklist.
-
-5. **Print & Share** — Share panel appears between the view filters and the print sheet. Test Copy Link, Email, SMS buttons. Switch to "With People" tab to see participant invite list.
-
-6. **Event Setup** — All sections are now collapsible. Coverage Policy and Portrait Preferences sections are new (both labeled PROTOTYPE). In the People section, expand any person row to see departure time, VIP, arrival uncertain, mobility fields. Vendors now have departure time and setup duration. Relationships now have Person A / Person B name inputs and constraint checkboxes.
-
-7. **Day-Of** — Unchanged. "View Details" links to activity detail (confirmed working).
+4. **Print & Share** — "With People" tab now has per-participant permission level dropdowns (View Only through Co-Owner). "What to include" section has six checkboxes — toggle them and the print document updates immediately. Footer now shows "Generated with OnCue · oncue.day".
 
 ---
 
 ## 5. Repository Status
 
-| Asset | Status |
+| File | Status |
 |---|---|
-| `src/components/HealthCard.tsx` | Updated — v2.6 layout fix + onSelectActivity prop |
-| `src/lib/questionnaire.ts` | Updated — v3.0 types, QCoverage, QPortrait, new optional fields |
-| `src/routes/events.$eventId.timeline.tsx` | Updated — attention banner, HealthCard integration |
-| `src/routes/events.$eventId.activities.$activityId.tsx` | Updated — DependencyPicker replaces raw IDs |
-| `src/routes/events.$eventId.people.tsx` | Updated — three-tab layout with Roster and Vendors |
-| `src/routes/events.$eventId.status.tsx` | Updated — actionable stat cards, sections restructured |
-| `src/routes/events.$eventId.print.tsx` | Updated — Share panel added |
-| `src/routes/events.$eventId.setup.tsx` | Updated — collapsible sections, Coverage + Portrait cards |
+| `src/routes/events.$eventId.timeline.tsx` | Updated — Phase 2.7 polish |
+| `src/routes/events.$eventId.people.tsx` | Updated — Phase 2.7 tab order |
+| `src/routes/events.$eventId.status.tsx` | Updated — Phase 2.7 full rewrite (compact command center) |
+| `src/routes/events.$eventId.print.tsx` | Updated — Phase 2.7 full rewrite (permissions, branding, offline backup) |
+| `docs/FOUNDER_DECISIONS.md` | Updated — §25–§29 new architectural decisions added; Last updated date corrected |
+| `docs/claude-handoff/current.md` | This file |
+| `docs/claude-handoff/archive/2026-06-23-2000-phase-2-6-ui-refinement-complete.md` | Archived before this update |
 
-**Git status:** All 8 files modified, not yet committed. `questionnaire.ts` change is local.
-
----
-
-## 6. Known Issues — Categorized
-
-### Phase 3 work (Supabase)
-- `questionnaire.ts` is still a stub — all event setup data is lost on page reload
-- `oncue-data.ts` demo data layer — replace with real Supabase queries
-- Setup screen saves nothing — labeled with ⚠️ DEMO ONLY
-
-### Phase 4 work (intelligence engine)
-- Coverage Policy fields (CoverageCard) — data captured but not wired to constraint engine
-- Portrait Preferences (PortraitCard) — data captured but sunset engine not active
-- Person constraint fields (departure, VIP, etc.) — captured, not evaluated
-- Vendor departure/setup fields — captured, not evaluated
-- `IntelligencePanel` shape mismatch — EFM `StatusExplanation` vs canonical shape (deferred to Phase 4)
-- `ActivityStatus` casing — EFM kebab-case vs PascalCase (deferred to Phase 4)
-- `PersonRelationship` optimizer — data model defined; Group Photo Optimizer reads it in Phase 4
+**Git status:** Phase 2.7 changes are local — not yet committed or pushed. Awaiting founder approval to commit + push.
 
 ---
 
-## 7. Merge Sequence
+## 6. Founder Decisions Logged (June 23, 2026)
+
+### Architectural decisions — `docs/FOUNDER_DECISIONS.md`
+
+Five new architectural decisions were formally recorded following founder review. Documentation-only — no application code was changed.
+
+| Section | Decision |
+|---|---|
+| §25 Timeline Architecture | Timeline defaults to Event Timeline. Users switch between Event Timeline, My Timeline, and Role Timelines. Event Timeline is always the source of truth. Individual timelines are filtered views — not separate schedules. |
+| §26 Role-Based Visibility | Event types define terminology and templates only — not architecture. Wedding and corporate roles are templates. Visibility and notifications derive from role and activity involvement. |
+| §27 Notification Intelligence | Recalculation and notifications are separate systems. Timeline Intelligence recalculates aggressively. Notification Intelligence must be conservative. Family and guests receive only information directly relevant to them. |
+| §28 Couple Intake View | Formally documented as roadmap — not for MVP or Phase 2. Separate surface from professional Event Setup. Must be designed independently. |
+| §29 Export Strategy | PDF primary → CSV first universal format → XLSX multi-sheet workbook → Google Sheets deferred. Build in this order. |
+
+### Workflow rule — `CLAUDE.md`
+
+The **Low-Risk Approval Standard** was added to `CLAUDE.md`. Effective immediately for all OnCue sessions.
+
+- **Proceed without asking:** reading files, editing project files, creating source/docs files, `npm install`, `npm run dev`, `npx tsc --noEmit`, `git status/diff/log`, local commits, archiving `current.md`
+- **Always ask first:** `git push`, deleting files, destructive git commands, database migrations, Supabase production changes, secrets/auth/billing/env changes, anything outside the OnCue folder
+- **Decision rule:** local + reversible via Git + inside OnCue folder → proceed. Destructive, external, production-facing, or hard to reverse → ask first.
+
+---
+
+## 7. Known Issues
+
+### Phase 3 work (Supabase — do not start yet)
+- All event data is still demo/mock arrays in `oncue-data.ts` — lost on reload
+- `questionnaire.ts` is still a stub — Setup screen saves nothing
+- Sharing, permissions, and acknowledgements are prototype-only; require real auth
+
+### Phase 4 work (intelligence engine — deferred)
+- Coverage Policy and Portrait Preferences fields captured but not wired to constraint engine
+- Person and vendor constraint fields captured but not evaluated
+- `IntelligencePanel` shape mismatch with EFM `StatusExplanation` — deferred to Phase 4
+- `ActivityStatus` casing reconciliation (kebab-case vs PascalCase) — deferred to Phase 4
+
+### Future architecture risks (from §25–§27 decisions)
+- Multi-timeline mode switching (Event Timeline / My Timeline / Role Timelines) is not yet reflected in the UI — the current Timeline screen only shows one view. This is expected for Phase 2; design for mode switching in Phase 3 or Phase 4.
+- Notification Intelligence requires a separate system distinct from Timeline recalculation — this separation must be enforced when the notification layer is built. No notification code exists yet; do not conflate with timeline update logic.
+- Role-based visibility is currently approximated via demo filter arrays (e.g., `ownerRole` filtering in Print). Real role-derived visibility requires Supabase activity relationships in Phase 3.
+
+---
+
+## 8. Merge Sequence
 
 | Phase | Description | Status |
 |---|---|---|
@@ -168,29 +174,36 @@ Navigate to any event → check each tab. All 7 screens have been updated.
 | Phase 1 | Design system + brand components | Complete — `f8aba29` |
 | Phase 2 | App scaffold + routes + UI components | Complete — `3f57a91`, `cd77567` |
 | Phase 2.5 | data-interfaces.ts v3.0 | Complete — `14e1dc1` |
-| **Phase 2.6** | UI refinement pass — all 7 screens | **Complete — commit pending** |
-| Phase 3 | Supabase schema and real persistence | Next |
+| Phase 2.6 | UI refinement pass — all 7 screens | Complete — `23016da` |
+| **Phase 2.7** | Founder review polish pass | **Complete — commit pending** |
+| Phase 3 | Supabase schema and real persistence | Next (requires founder Supabase project) |
 | Phase 4 | Real intelligence engine | After Phase 3 |
 
 ---
 
-## 8. Next Step
+## 9. Next Step
 
-Commit Phase 2.6 and push, then begin Phase 3.
+Founder approval required to commit and push Phase 2.7.
 
-Before beginning Phase 3, confirm the founder has:
-- Created a Supabase project at supabase.com
-- Has the project URL and anon key ready
+**To commit and push, send:**
+```
+Commit and push Phase 2.7.
+```
 
+**Before beginning Phase 3, confirm:**
+- Supabase project created at supabase.com
+- Project URL and anon key ready
+
+**Phase 3 prompt (after push confirmed):**
 ```
 Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
 
-Task: Phase 3 of the oncue build — Supabase schema and real data persistence.
+Task: Phase 3 — Supabase schema and real data persistence.
 
 Read first:
 - docs/claude-handoff/current.md
 - docs/FOUNDER_DECISIONS.md
-- docs/architecture/data-interfaces.ts (v3.0)
+- src/lib/data-interfaces.ts
 
 Phase 3 scope:
 1. Design the SQL schema based on data-interfaces.ts v3.0
@@ -203,4 +216,5 @@ Do not:
 - Modify event-flow-master
 - Change the route structure or core UI components
 - Implement the real intelligence engine (Phase 4)
+- Begin without the founder's Supabase project URL and anon key
 ```

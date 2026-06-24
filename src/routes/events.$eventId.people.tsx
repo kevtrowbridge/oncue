@@ -58,7 +58,7 @@ function PeoplePage() {
   const familyPhoto = getActivities(eventId).find((a) => a.title === "Family Photos")!;
   const planned = familyPhoto.duration;
 
-  const [tab, setTab] = useState<"groups" | "roster" | "vendors">("groups");
+  const [tab, setTab] = useState<"groups" | "roster" | "vendors">("roster");
 
   // ⚠️ DEMO ONLY: groups are seeded from mock data and mutated in local state.
   // Real photo groups would be persisted and re-optimized by the backend.
@@ -169,9 +169,9 @@ function PeoplePage() {
       <div className="mb-5 flex gap-1 rounded-xl border border-border bg-card p-1">
         {(
           [
-            { key: "groups", label: "Photo Groups", count: groups.filter((g) => !g.deferred).length },
             { key: "roster", label: "People Roster", count: DEMO_PEOPLE.length },
             { key: "vendors", label: "Vendors", count: DEMO_VENDORS.length },
+            { key: "groups", label: "Photo Groups", count: groups.filter((g) => !g.deferred).length },
           ] as const
         ).map(({ key, label, count }) => (
           <button

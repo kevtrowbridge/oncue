@@ -72,8 +72,10 @@ function TimelinePage() {
         </div>
         <div className="flex items-center gap-4 text-xs">
           <Legend swatch="bg-gradient-gold" label={<InfoTip label={TERMS["Fixed Timing"]}>Fixed Timing</InfoTip>} />
-          <Legend swatch="bg-[color:var(--shifting)]" label={<InfoTip label={TERMS["Needs Adjustment"]}>Needs Adjustment</InfoTip>} />
+          <Legend swatch="bg-[color:var(--shifting)]" label={<InfoTip label={TERMS["Needs Adjustment"]}>Needs Attention</InfoTip>} />
           <Legend swatch="bg-[color:oklch(0.4_0.02_260)]" label="On Track" />
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground">Click to select · Double-click to edit</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="rounded-md bg-gradient-gold px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-gold">
@@ -88,7 +90,7 @@ function TimelinePage() {
           <div className="flex items-center gap-3">
             <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--shifting)]" />
             <p className="text-sm text-foreground">
-              <span className="font-medium status-shifting">{attentionCount} {attentionCount === 1 ? "issue" : "issues"} need attention</span>
+              <span className="font-medium status-shifting">{attentionCount} {attentionCount === 1 ? "activity needs" : "activities need"} attention</span>
               {" "}— click any activity in the Issues list or{" "}
               <button
                 type="button"
@@ -193,7 +195,9 @@ function TimelinePage() {
                   }
                   title="Click to preview · Double-click to open & edit"
                   className={`grid w-full grid-cols-[260px_160px_1fr] items-center border-b border-border/40 text-left transition hover:bg-secondary/40 ${
-                    isSelected ? "bg-secondary/60" : ""
+                    isSelected
+                      ? "border-l-2 border-l-gold bg-secondary/60"
+                      : "border-l-2 border-l-transparent"
                   }`}
                 >
                   <div className="flex items-center gap-3 px-4 py-2.5">
@@ -288,14 +292,14 @@ function TimelinePage() {
 
             <div className="mt-5 space-y-2">
               {NEEDS_PANEL.has(selected.status) && (
-                <button className="w-full rounded-md bg-gradient-gold py-2 text-sm font-medium text-primary-foreground shadow-gold">
+                <button className="w-full rounded-md border border-border py-2 text-sm text-foreground hover:bg-secondary/50">
                   Update Remaining Timeline
                 </button>
               )}
               <Link
                 to="/events/$eventId/activities/$activityId"
                 params={{ eventId, activityId: selected.id }}
-                className="block w-full rounded-md border border-border py-2 text-center text-sm text-foreground"
+                className="block w-full rounded-md bg-gradient-gold py-2 text-center text-sm font-medium text-primary-foreground shadow-gold"
               >
                 Open & Edit Activity
               </Link>
@@ -309,7 +313,7 @@ function TimelinePage() {
         <section ref={issuesStripRef} className="mt-6 space-y-3" id="issues-strip">
           <div className="flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-[0.22em] text-gold">
-              Issues — {attentionCount} {attentionCount === 1 ? "activity" : "activities"} need attention
+              Needs Attention — {attentionCount} {attentionCount === 1 ? "activity" : "activities"}
             </div>
             <span className="text-[10px] text-muted-foreground">Click any card to select the activity above</span>
           </div>

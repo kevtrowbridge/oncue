@@ -198,6 +198,32 @@ Next step: <exact action>
 
 ---
 
+## Low-Risk Approval Standard
+
+During OnCue development sessions, proceed without asking for confirmation on low-risk, reversible local actions.
+
+**Pre-approved — proceed without asking:**
+- Reading or searching any file in this repository
+- Editing existing project files (source, docs, config)
+- Creating normal source or documentation files
+- Running `npm install`, `npm run dev`, `npx tsc --noEmit`
+- Running `git status`, `git diff`, `git log`
+- Creating local commits
+- Archiving `docs/claude-handoff/current.md` before updating it
+
+**Always ask first:**
+- `git push` — to any remote
+- Deleting files or folders
+- Destructive git commands (`reset --hard`, `rebase`, `amend`, force push)
+- Database migrations (local or remote)
+- Any Supabase production changes
+- Changing secrets, auth config, billing settings, or environment variables
+- Any action outside the OnCue folder
+
+**Decision rule:** If the action is local, reversible through Git, and inside the OnCue folder — proceed. If the action is destructive, external, production-facing, or difficult to reverse — ask first.
+
+---
+
 ## Git Workflow
 
 - Run `git status` before staging or committing.
