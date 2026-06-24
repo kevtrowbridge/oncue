@@ -1,77 +1,57 @@
 # Claude Handoff — Current
 
 **Last updated:** June 23, 2026
-**Current phase:** Phase 2 complete — app scaffold and all routes copied; app compiles and runs
+**Current phase:** Phase 2 complete — data-interfaces.ts updated to v3.0 for Event Setup architecture
 
 ---
 
 ## 1. Thirty-Second Summary
 
-Phase 2 is done. OnCue now has a working app scaffold copied from `event-flow-master`. The app compiles with zero TypeScript errors and the dev server starts successfully. The founder can open it in a browser at `http://localhost:3000/` (or whichever port is free — typically 3000 or 8081).
+Phase 2 is done and the data model has been updated. OnCue now has:
+- A working app scaffold (all 8 screens compilable, zero TypeScript errors, `npm run dev` starts at localhost:3000)
+- `data-interfaces.ts` v3.0 — extended with 10 additions from the Event Setup architecture review
 
-All 8 screens from the prototype now exist as source code in `KevTrowbridge/oncue`. The data layer is demo-only mock data. Phase 3 is Supabase schema and real persistence.
+The data model is now complete enough to author the Phase 3 Supabase schema directly against these types without structural rewrites.
 
 ---
 
 ## 2. What Changed This Session
 
-### Phase 2 — App scaffold + routes + UI components
+### data-interfaces.ts — Updated to v3.0
 
-**Scaffold files created:**
+**New enum types added:**
 
-| File | Notes |
+| Type | Purpose |
 |---|---|
-| `package.json` | Matches EFM dependencies; name changed to "oncue" |
-| `tsconfig.json` | Copied as-is; includes `@/*` path alias |
-| `vite.config.ts` | Copied as-is; uses `@lovable.dev/vite-tanstack-config` |
-| `bunfig.toml` | Copied as-is; includes 24h supply-chain guard |
-| `components.json` | Copied as-is; shadcn config |
-| `src/start.ts` | Copied as-is; TanStack Start server entry |
-| `src/server.ts` | **Modified** — `error-capture.ts` import removed; simplified fetch handler |
-| `src/router.tsx` | Copied as-is; creates QueryClient + TanStack router |
-| `src/lib/error-page.ts` | Copied as-is; HTML error renderer, no Lovable deps |
+| `PortraitLightingPreference` | 5-mode enum: Flexible / WarmLightBeforeSunset / SunsetGlow / ColorfulSkyAfterSunset / BlueHour |
+| `PortraitLightingPriority` | NiceToHave / Important / Critical — governs how engine weights the lighting constraint |
+| `OveragePolicy` | None / ApprovalRequired / PreApproved — governs coverage overage handling |
 
-**Routes created (10 routes):**
+**New entities added:**
 
-| File | Notes |
+| Entity | Purpose |
 |---|---|
-| `src/routes/__root.tsx` | **Modified** — `reportLovableError` import and `useEffect` removed |
-| `src/routes/index.tsx` | Dashboard |
-| `src/routes/events.$eventId.tsx` | Event shell + tab nav |
-| `src/routes/events.$eventId.index.tsx` | Redirects to /timeline |
-| `src/routes/events.$eventId.setup.tsx` | Questionnaire setup screen |
-| `src/routes/events.$eventId.timeline.tsx` | Gantt timeline + intelligence strip |
-| `src/routes/events.$eventId.day-of.tsx` | Day-of execution mode |
-| `src/routes/events.$eventId.people.tsx` | Photo group optimizer |
-| `src/routes/events.$eventId.status.tsx` | Status + change log + master checklist |
-| `src/routes/events.$eventId.print.tsx` | Print/run sheet filtered views |
-| `src/routes/events.$eventId.activities.$activityId.tsx` | Activity detail + edit |
-| `src/routeTree.gen.ts` | TanStack Router route tree (generated, copied as-is) |
+| `ServiceCoverage` | Coverage window for any service role; billable minutes, hard departure, overage policy. NOT invoicing. |
+| `CoverageImpact` | Computed output: how the current timeline maps against contracted coverage. Surfaced as a warning. |
+| `PersonRelationship` | Connection between two Person records; `cannotBeInSamePhoto`, `mustBePhotographedTogether`. Blended family logic. |
 
-**Components created:**
+**Fields added to existing entities:**
 
-| File | Notes |
+| Entity | New Fields |
 |---|---|
-| `src/components/HealthCard.tsx` | Timeline health card; uses oncue-data.ts TERMS |
-| `src/components/ui/*.tsx` | All 43 shadcn/Radix UI components |
+| `Person` | `departureConstraintTime`, `arrivalUncertain`, `isVip`, `mobilityConcern` |
+| `QuestionnairePreferences` | `portraitLightingPreference`, `portraitLightingPriority`, `totalPortraitMinutesDesired` |
+| `QuestionnaireVendor` | `departureTime`, `setupDurationMinutes` |
 
-**Utilities and hooks:**
+**Separation rules codified in file header:**
+- People: portrait/group photo roster
+- Vendors: service providers, contact details, role visibility
+- Participants: OnCue users/invitees (UserEventRole)
+- These three concepts must not be collapsed.
 
-| File | Notes |
-|---|---|
-| `src/lib/utils.ts` | `cn()` className utility |
-| `src/hooks/use-mobile.tsx` | Mobile breakpoint hook |
-| `src/lib/oncue-data.ts` | DEMO ONLY header added; 995 lines total |
-| `src/lib/questionnaire.ts` | **Phase 2 stub** — types + empty functions only; NO localStorage; Phase 3 replaces |
+### Phase 2 App Scaffold — Unchanged (still complete)
 
-**Files explicitly NOT copied:**
-
-| File | Reason |
-|---|---|
-| `src/lib/lovable-error-reporting.ts` | Lovable telemetry — not needed |
-| `src/lib/error-capture.ts` | Lovable SSR error capture — not needed |
-| `.lovable/` | Lovable platform config — not needed |
-| `bun.lock` | Generated artifact — not committed |
+All 8 screens from the Lovable prototype exist as source code in `KevTrowbridge/oncue`. Zero TypeScript errors. The data layer is demo-only mock data. Phase 3 replaces it with Supabase.
 
 ---
 
@@ -79,11 +59,8 @@ All 8 screens from the prototype now exist as source code in `KevTrowbridge/oncu
 
 | Check | Result |
 |---|---|
-| `npm install` | Succeeded — 462 packages installed, 0 vulnerabilities |
-| `npx tsc --noEmit` | **0 TypeScript errors** |
-| `npm run dev` | Server started at `http://localhost:8081/` in 1737ms |
-
-`@lovable.dev/vite-tanstack-config` is publicly available on npm and installed correctly.
+| `npx tsc --noEmit` after data-interfaces.ts v3.0 changes | **0 TypeScript errors** |
+| `npm run dev` (Phase 2 app scaffold) | Server started at `http://localhost:8081/` in 1737ms (verified previously) |
 
 ---
 
@@ -96,11 +73,11 @@ All 8 screens from the prototype now exist as source code in `KevTrowbridge/oncu
 | `CLAUDE.md` | Complete |
 | `docs/FOUNDER_DECISIONS.md` | Complete — 24 sections |
 | `docs/architecture/mvp-ux-architecture.md` | Complete — v3.0 |
-| `docs/architecture/data-interfaces.ts` | Complete — v2.0, 55 exports |
+| `docs/architecture/data-interfaces.ts` | **Complete — v3.0** (updated this session) |
 | `src/styles.css` | Complete — Phase 1 |
 | `src/components/brand/Logo.tsx` | Complete — Phase 1 |
 | `src/components/EditorialHeader.tsx` | Complete — Phase 1 |
-| `src/components/IntelligencePanel.tsx` | Complete — Phase 1 (import uses EFM shape; see §5) |
+| `src/components/IntelligencePanel.tsx` | Complete — Phase 1 (shape mismatch deferred to Phase 4) |
 | `src/components/InfoTip.tsx` | Complete — Phase 1 |
 | App scaffold | **Phase 2 complete** |
 | Routes (all 10) | **Phase 2 complete** |
@@ -119,10 +96,6 @@ Unchanged. All 8 screens still working. Still the reference implementation.
 
 ## 5. Known Issues — Categorized
 
-### Quick-fix (can do anytime)
-
-None currently — TypeScript compiles clean.
-
 ### Phase 3 work (Supabase integration)
 
 | Issue | Location | Notes |
@@ -135,8 +108,11 @@ None currently — TypeScript compiles clean.
 
 | Issue | Location | Notes |
 |---|---|---|
-| `IntelligencePanel.tsx` shape mismatch | `src/components/IntelligencePanel.tsx` | Uses EFM `StatusExplanation` shape (richer than canonical); `affected` is `Array<{id, title, newTime, note}>`, `recommendation` is `{label, rationale}`, `estimatedDelayMin` — canonical uses `affectedActivityIds: string[]`, `recommendedAction: string`, `estimatedDelayMinutes`. Resolve when wiring real solver. |
-| `ActivityStatus` casing | Multiple routes | EFM uses lowercase kebab-case (`"on-track"`, `"needs-adjustment"`); canonical `data-interfaces.ts` uses PascalCase (`"OnTrack"`, `"NeedsAdjustment"`). Reconcile in Phase 4 when real solver output is defined. |
+| `IntelligencePanel.tsx` shape mismatch | `src/components/IntelligencePanel.tsx` | Uses EFM `StatusExplanation` shape; canonical shape now in `data-interfaces.ts`. Resolve in Phase 4. |
+| `ActivityStatus` casing | Multiple routes | EFM uses kebab-case; canonical uses PascalCase. Reconcile in Phase 4. |
+| `ServiceCoverage` not wired | — | Entity defined in data-interfaces.ts; constraint engine evaluates it in Phase 4 |
+| `PersonRelationship` not wired | — | Entity defined; Group Photo Optimizer reads it in Phase 4 |
+| `CoverageImpact` not produced | — | Output type defined; constraint solver produces it in Phase 4 |
 
 ---
 
@@ -146,7 +122,8 @@ None currently — TypeScript compiles clean.
 |---|---|---|
 | Phase 0 | Interface reconciliation | **Complete** — commit `a5fdf43` |
 | Phase 1 | Design system + brand components | **Complete** — commit `f8aba29` |
-| **Phase 2** | App scaffold + routes + UI components | **Complete — pending commit** |
+| Phase 2 | App scaffold + routes + UI components | **Complete** — commits `3f57a91`, `cd77567` |
+| **Phase 2.5** | data-interfaces.ts v3.0 — Event Setup additions | **Complete — this session** |
 | Phase 3 | Supabase schema and real persistence | Ready to start |
 | Phase 4 | Real intelligence engine | |
 
@@ -154,7 +131,7 @@ None currently — TypeScript compiles clean.
 
 ## 7. Visible and Testable?
 
-**Yes — as of Phase 2.**
+**App scaffold: Yes.**
 
 Run from the oncue repo root:
 ```
@@ -165,6 +142,10 @@ Open: `http://localhost:3000/` (or 8081 if 3000 is taken).
 
 The app shows the demo event dashboard. All 6 tabs (Setup, Timeline, Day-Of, People, Status, Print) navigate correctly. Data is mock/demo. Nothing is persisted.
 
+**data-interfaces.ts changes: Not visually testable (types only).**
+
+TypeScript check passes with zero errors. The new types and entities have no application surface until Phase 3/4 wires them to Supabase and the constraint engine.
+
 **Note:** `bun` is not installed in this shell environment. Use `npm run dev` to start the server.
 
 ---
@@ -173,15 +154,13 @@ The app shows the demo event dashboard. All 6 tabs (Setup, Timeline, Day-Of, Peo
 
 **Founder review is recommended now.**
 
-This is the first time the founder can see the OnCue app running under the canonical `KevTrowbridge/oncue` repository. The app is identical in appearance and behavior to `event-flow-master` — same screens, same mock data, same brand design.
+The data model is at its most complete pre-Supabase state. Before Phase 3 schema work begins, the founder should confirm:
 
-**What to check:**
-1. Run `npm run dev` from the oncue directory
-2. Open the URL shown in the terminal
-3. Confirm you see the dashboard with the demo event
-4. Click through all 6 tabs to confirm they load
-5. Open Timeline and confirm the intelligence panel appears for activities with issues
-6. Open People and try reordering groups / flagging a missing person
+1. `ServiceCoverage` — does the field list (especially `excludeTravelTime`, `excludeBreaksLongerThanMinutes`, `excludeDowntimeLongerThanMinutes`) match the real coverage agreement structures they expect?
+2. `PersonRelationship` — does `cannotBeInSamePhoto` / `preferredNotSamePhoto` / `mustBePhotographedTogether` cover all the blended family scenarios encountered in real weddings?
+3. `PortraitLightingPreference` — are the 5 modes (Flexible, WarmLightBeforeSunset, SunsetGlow, ColorfulSkyAfterSunset, BlueHour) the right named options for the questionnaire UI?
+
+If any of these need adjustment, now is the time — before the Phase 3 Supabase migrations are written.
 
 ---
 
@@ -189,6 +168,7 @@ This is the first time the founder can see the OnCue app running under the canon
 
 | Hash | Message | Location |
 |---|---|---|
+| (this session) | Update data-interfaces.ts to v3.0 for Event Setup architecture | KevTrowbridge/oncue — see below |
 | `3f57a91` | Phase 2: app scaffold, all routes, UI components | KevTrowbridge/oncue ✓ pushed |
 | `f8aba29` | Phase 1: copy design system and brand components to src/ | KevTrowbridge/oncue ✓ pushed |
 | `a5fdf43` | Reconcile data interfaces v2.0 — resolve 7 EFM conflicts, add 11 types | KevTrowbridge/oncue ✓ |
@@ -196,6 +176,10 @@ This is the first time the founder can see the OnCue app running under the canon
 ---
 
 ## 10. Exact Successor Prompt (Phase 3)
+
+Before beginning Phase 3, confirm the founder has:
+- Created a Supabase project at supabase.com
+- Has the project URL and anon key ready
 
 ```
 Work only in: /Users/kevintrowbridge/SaaS Development/OnCue
@@ -206,17 +190,16 @@ real data persistence.
 Read first:
 - docs/claude-handoff/current.md
 - docs/FOUNDER_DECISIONS.md
-- docs/architecture/data-interfaces.ts (v2.0)
+- docs/architecture/data-interfaces.ts (v3.0)
 
 Phase 3 scope:
-1. Create a Supabase project (founder must do this manually first — go to
-   supabase.com and create a new project; provide the project URL and anon key)
-2. Design the SQL schema based on data-interfaces.ts v2.0
-   (Event, Activity, Person, PhotoGroup, Participant, ChecklistItem, UserProfile)
-3. Write and apply Supabase migrations
-4. Replace src/lib/oncue-data.ts demo layer with real Supabase queries
-5. Replace src/lib/questionnaire.ts stub with Supabase-backed event setup
-6. Wire the Setup screen to save/load real event data
+1. Design the SQL schema based on data-interfaces.ts v3.0
+   (Event, Activity, Person, PersonRelationship, PhotoGroup, ServiceCoverage,
+   QuestionnaireVendor, EmergencyContact, UserProfile)
+2. Write and apply Supabase migrations
+3. Replace src/lib/oncue-data.ts demo layer with real Supabase queries
+4. Replace src/lib/questionnaire.ts stub with Supabase-backed event setup
+5. Wire the Setup screen to save/load real event data
 
 Do not:
 - Modify event-flow-master

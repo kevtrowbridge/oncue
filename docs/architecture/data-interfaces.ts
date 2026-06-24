@@ -1,6 +1,6 @@
 /**
  * OnCue MVP — TypeScript Data Interfaces
- * Version: 2.0 | June 22, 2026
+ * Version: 3.0 | June 23, 2026
  *
  * PURPOSE
  * These interfaces define every data shape used across all OnCue components.
@@ -21,6 +21,25 @@
  * Resolved 7 conflicts between data-interfaces.ts and event-flow-master types.
  * See docs/claude-handoff/current.md §5 for the full conflict table.
  * Each conflict is annotated at the affected field or type with a CONFLICT RESOLVED comment.
+ *
+ * ADDITIONS LOG (v2.0 → v3.0)
+ * Added following Event Setup architecture review (June 23, 2026):
+ * - PortraitLightingPreference enum (5-mode sunset / lighting constraint)
+ * - PortraitLightingPriority enum
+ * - OveragePolicy enum
+ * - ServiceCoverage entity (billable coverage window, overage policy, hard departure time)
+ * - CoverageImpact type (constraint engine coverage evaluation output)
+ * - PersonRelationship entity (blended family / photo group separation logic)
+ * - Person: departureConstraintTime, arrivalUncertain, isVip, mobilityConcern
+ * - QuestionnairePreferences: portraitLightingPreference, portraitLightingPriority, totalPortraitMinutesDesired
+ * - QuestionnaireVendor: departureTime, setupDurationMinutes
+ *
+ * SEPARATION RULES (enforced by this model):
+ * - People: humans who may appear in portraits / family groups. Roster for photo optimizer.
+ * - Vendors: service providers, companies, vendor roles, and their contact details.
+ * - Participants: users or invitees with access to OnCue (UserEventRole). Not the same as People.
+ * A vendor contact may become a Participant for app access, but is NOT automatically
+ * a Person for photo / group purposes. Do not collapse these three concepts.
  *
  * RULES
  * - No framework imports (React, Supabase, etc.)
@@ -245,6 +264,46 @@ export type RelationshipKind =
   | "Remarried"
   | "Step"
   | "Single";
+
+/**
+ * The preferred lighting condition for the couple portrait session.
+ * Drives the constraint engine's positioning of portrait activities relative to
+ * the calculated sunset time for the event date and portrait location.
+ * Used by: QuestionnairePreferences.portraitLightingPreference, sunset conflict evaluation
+ * Spec: Event Setup architecture review — Section 6
+ *
+ * ADDED v3.0: from Event Setup architecture review.
+ */
+export type PortraitLightingPreference =
+  | "Flexible"               // No lighting constraint; portrait block may fall anywhere
+  | "WarmLightBeforeSunset"  // Golden hour start; session begins ~60–90 min before sunset
+  | "SunsetGlow"             // Session positioned around the 15–30 min window at/near sunset
+  | "ColorfulSkyAfterSunset" // Nautical twilight; vivid sky colors; 0–20 min after sunset
+  | "BlueHour";              // Astronomical twilight; cool even light; ~20–45 min after sunset
+
+/**
+ * How strongly the client wants the portrait lighting preference honored.
+ * Governs how the constraint engine weights the lighting constraint against other
+ * timeline demands when recovery options are evaluated.
+ * Used by: QuestionnairePreferences.portraitLightingPriority
+ *
+ * ADDED v3.0: from Event Setup architecture review.
+ */
+export type PortraitLightingPriority = "NiceToHave" | "Important" | "Critical";
+
+/**
+ * Policy governing what happens when a service provider's timeline exceeds their
+ * contracted coverage window. Does not represent billing policy — it is an
+ * operational constraint only. No dollar figures are stored.
+ * Used by: ServiceCoverage.overagePolicy, CoverageImpact
+ * Spec: Event Setup architecture review — Section 2
+ *
+ * ADDED v3.0: from Event Setup architecture review.
+ */
+export type OveragePolicy =
+  | "None"              // No overtime available; hard stop at coverage end
+  | "ApprovalRequired"  // Overtime possible but must be explicitly approved on the day
+  | "PreApproved";      // Overtime pre-approved up to ServiceCoverage.maxOverageMinutes
 
 
 // =============================================================================
@@ -568,6 +627,11 @@ export interface GroupParticipant {
  * Also the source for vendor link generation.
  * Used by: Questionnaire screen section 5, Vendor Management screen
  * Spec: §4 Screen 3 — section 5
+ *
+ * Vendor contacts are distinct from People (photo/group participants) and from
+ * Participants (OnCue users/invitees). A QuestionnaireVendor record is a service
+ * provider entry. It may link to a VendorRole for visibility configuration, and
+ * may link to a ServiceCoverage record for coverage constraint modeling.
  */
 export interface QuestionnaireVendor {
   id: string;
@@ -577,18 +641,30 @@ export interface QuestionnaireVendor {
   contactPhone: string | null;
   contactEmail: string | null;
   arrivalTime: string | null;    // "HH:MM"
+  // ADDED v3.0: from Event Setup architecture review
+  departureTime: string | null;         // "HH:MM"; engine warns when vendor-visible activities are scheduled after this
+  setupDurationMinutes: number | null;  // engine can insert a setup block before the vendor's first visible activity
 }
 
 /**
- * Section 6 — Creative and emotional preferences.
+ * Section 6 — Creative and emotional preferences, and portrait lighting constraints.
  * Used by: Questionnaire screen section 6
- * Spec: §4 Screen 3 — section 6
+ * Spec: §4 Screen 3 — section 6; Event Setup architecture review — Section 6
+ *
+ * portraitLightingPreference and portraitLightingPriority are MACHINE-EVALUATED fields.
+ * The constraint engine uses them to position the portrait block relative to calculated
+ * sunset time and to evaluate SunsetConflict warnings. All other fields in this section
+ * are human-readable metadata that the photographer interprets when configuring the timeline.
  */
 export interface QuestionnairePreferences {
   idealPortraitLocation: string | null;
   dreamSpaceDescription: string | null;
   importantPeopleAndMoments: string | null;
   emotionalPriorities: string | null;
+  // ADDED v3.0: from Event Setup architecture review — machine-evaluated portrait constraints
+  portraitLightingPreference: PortraitLightingPreference | null; // null treated as Flexible by the engine
+  portraitLightingPriority: PortraitLightingPriority | null;     // null treated as NiceToHave by the engine
+  totalPortraitMinutesDesired: number | null; // engine warns when the portrait block is shorter than this
 }
 
 /**
@@ -676,6 +752,43 @@ export interface Person {
   isWeddingParty: boolean;            // true = also in wedding party
   weddingPartyRole: string | null;    // "MOH", "Groomsman", "Flower Girl", "Officiant"
   sortOrder: number;
+  // ADDED v3.0: from Event Setup architecture review
+  departureConstraintTime: string | null; // "HH:MM"; optimizer flags portrait groups scheduled after this time
+  arrivalUncertain: boolean;          // true = person may arrive late; optimizer adds a soft warning to their groups
+  isVip: boolean;                     // true = elevated portrait priority; scheduled early in the portrait session
+  mobilityConcern: boolean | null;    // null = unknown; true = needs early slot or accessibility accommodation
+}
+
+/**
+ * A directed relationship between two people in the event roster.
+ * Supports divorced, remarried, step-parent, and blended-family photo group logic.
+ * The Group Photo Optimizer reads these records to avoid placing incompatible people
+ * in the same group, and to enforce must-be-together constraints.
+ *
+ * NOTE: PersonRelationship is about photo logistics, not lineage or biography.
+ * "Cannot be in the same photo" is the primary constraint the optimizer enforces here.
+ * Lineage and context belong in Person.relationshipLabel and Person.notes.
+ *
+ * People (photo participants) remain separate from Vendors (service providers) and
+ * Participants (OnCue users / invitees). PersonRelationship only connects Person records.
+ *
+ * Used by: Group Photo Optimizer (sequencing and separation logic)
+ * Spec: Event Setup architecture review — Section 4
+ *
+ * ADDED v3.0: from Event Setup architecture review.
+ * The prior scalar Person.relationshipKind describes the person, not a connection.
+ * This entity models the connection between two specific Person records.
+ */
+export interface PersonRelationship {
+  id: string;
+  eventId: string;
+  personAId: string;                   // Person.id — one end of the relationship
+  personBId: string;                   // Person.id — other end of the relationship
+  relationshipKind: RelationshipKind;  // Nature of the connection between A and B
+  cannotBeInSamePhoto: boolean;        // true = optimizer never places A and B in the same group
+  preferredNotSamePhoto: boolean;      // true = optimizer avoids it but does not hard-block
+  mustBePhotographedTogether: boolean; // true = optimizer places A and B in at least one shared group
+  notes: string | null;                // "New partner of Person A", "Divorced; amicable but separate groups"
 }
 
 
@@ -812,6 +925,81 @@ export interface VendorLink {
   generatedAt: string;        // ISO timestamp
   firstViewedAt: string | null;
   confirmedAt: string | null; // Set when vendor taps "I've got it"
+}
+
+
+// =============================================================================
+// SERVICE COVERAGE
+// =============================================================================
+
+/**
+ * Models the coverage window and billing constraints for any service role attending
+ * an event — photographer, videographer, DJ, planner, coordinator, hair/makeup,
+ * or any other service provider. This entity is generic and event-type-agnostic.
+ *
+ * IMPORTANT: ServiceCoverage does NOT store dollar figures, rates, or invoicing data.
+ * It exists solely to support Timeline Intelligence:
+ *   - Warn when the proposed day schedule would cause a service provider to exceed
+ *     their contracted coverage window.
+ *   - Surface overage approval requirements to the owner before the wedding day.
+ *   - Alert in Day-Of Mode when a hard departure time is approaching.
+ *   - Drive recovery option evaluation: "to stay within coverage, compress portraits by 15 min."
+ *
+ * Coverage belongs to the service ROLE, not to the vendor contact or participant.
+ * A vendor contact may have an OnCue participant account (UserEventRole), but
+ * ServiceCoverage links to the VendorRole they are fulfilling — not to their
+ * identity record or photo/group roster entry. Vendors, People, and Participants
+ * are and must remain separate concepts in this data model.
+ *
+ * Used by: Timeline Intelligence (coverage constraint evaluation), CoverageImpact,
+ *          Day-Of Mode (departure alert), Event Readiness warnings
+ * Spec: Event Setup architecture review — Section 2
+ *
+ * ADDED v3.0: from Event Setup architecture review.
+ */
+export interface ServiceCoverage {
+  id: string;
+  eventId: string;
+  vendorRoleId: string;               // VendorRole.id — the role this coverage applies to
+  participantId: string | null;       // UserEventRole.userId — specific participant if known; null if not yet assigned
+  coverageStartTime: string;          // "HH:MM" — when this service provider begins their coverage window
+  coverageEndTime: string;            // "HH:MM" — scheduled end of contracted coverage
+  includedBillableMinutes: number;    // Total contracted coverage duration; may differ from end − start (see exclude fields)
+  latestDepartureTime: string | null; // "HH:MM" — hard stop if different from coverageEndTime; null if flexible
+  overagePolicy: OveragePolicy;
+  maxOverageMinutes: number | null;   // Only set when overagePolicy === "PreApproved"
+  excludeTravelTime: boolean;         // true = travel blocks do not count against billable minutes
+  excludeBreaksLongerThanMinutes: number | null; // breaks longer than this threshold are excluded; null = no exclusion
+  excludeDowntimeLongerThanMinutes: number | null; // idle gaps longer than this threshold are excluded; null = no exclusion
+  notes: string | null;               // Any special coverage terms or clarifications
+}
+
+/**
+ * The constraint engine's evaluation of whether the current timeline would cause
+ * one or more service providers to exceed their contracted coverage.
+ * Produced during Planning Mode constraint evaluation and in real time in Day-Of Mode
+ * when a delay is entered.
+ *
+ * CoverageImpact is a computed output type, not a stored record.
+ * It is generated at evaluation time and surfaced to the owner for awareness and action.
+ * It does not represent an invoice, a charge, or a billing notification.
+ *
+ * Used by: Timeline Intelligence (constraint evaluation output), Day-Of Mode delay panel
+ * Spec: Event Setup architecture review — Section 2
+ *
+ * ADDED v3.0: from Event Setup architecture review.
+ */
+export interface CoverageImpact {
+  serviceCoverageId: string;                // ServiceCoverage.id this evaluation applies to
+  projectedBillableMinutes: number;         // Billable minutes the current timeline would consume
+  includedBillableMinutes: number;          // What the contract includes (from ServiceCoverage)
+  projectedOverageMinutes: number;          // projectedBillableMinutes − includedBillableMinutes; 0 if within coverage
+  remainingAllowedOverageMinutes: number | null; // null when overagePolicy === "None"; otherwise maxOverageMinutes − projectedOverageMinutes
+  affectedActivityIds: string[];            // Activities that fall outside or near the coverage window
+  affectedVendorRoleIds: string[];          // VendorRole.id records whose visibility includes out-of-coverage activities
+  approvalRequired: boolean;                // true when overagePolicy === "ApprovalRequired" and overage is projected
+  preApproved: boolean;                     // true when overagePolicy === "PreApproved" and within maxOverageMinutes
+  recommendedAction: string;                // Plain-language suggestion: "Compress portraits by 15 min to stay within coverage."
 }
 
 
